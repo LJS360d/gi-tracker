@@ -11,6 +11,7 @@ export const dict = {
     title: "Titolo",
     config: "Config",
     media: "Media",
+    navLabel: "Sezioni admin",
     backToMap: "Torna alla mappa",
     tokenPlaceholder: "Token admin",
     submitToken: "Sblocca",

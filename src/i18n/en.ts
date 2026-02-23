@@ -11,6 +11,7 @@ export const dict = {
     title: "Title",
     config: "Config",
     media: "Media",
+    navLabel: "Admin sections",
     backToMap: "Back to map",
     tokenPlaceholder: "Admin token",
     submitToken: "Unlock",

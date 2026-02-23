@@ -4,7 +4,7 @@ import { useI18n } from "~/i18n";
 import "easymde/dist/easymde.min.css";
 import { apiHeaders } from "~/lib/admin-client";
 import { adminTokenStore } from "~/lib/admin-store";
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-solid";
+import { ChevronLeftIcon, ChevronRightIcon, ImageIcon, VideoIcon, PlusIcon, XIcon } from "lucide-solid";
 
 type PointOption = { id: number; device_ts: number; lat: number; lng: number };
 type MediaRow = {
@@ -33,6 +33,11 @@ function formatPoint(p: PointOption) {
 function formatTs(sec: number | null): string {
   if (sec == null) return "—";
   return new Date(sec * 1000).toLocaleString(undefined, { dateStyle: "short", timeStyle: "short" });
+}
+
+function thumbUrl(row: MediaRow): string | null {
+  if (row.type === "image" && row.url) return row.url;
+  return null;
 }
 
 export default function AdminMedia() {
@@ -254,21 +259,16 @@ export default function AdminMedia() {
     });
   }
 
-  function setSortCol(col: SortCol) {
-    if (sort() === col) setOrder(o => (o === "asc" ? "desc" : "asc"));
-    else setSort(col);
-    setPage(0);
-  }
   const totalPages = () => Math.max(1, Math.ceil(total() / pageSize()));
-  const from = () => total() === 0 ? 0 : page() * pageSize() + 1;
+  const from = () => (total() === 0 ? 0 : page() * pageSize() + 1);
   const to = () => Math.min((page() + 1) * pageSize(), total());
 
   if (!token()) {
     return (
-      <div class="max-w-xl text-neutral-300">
+      <div class="w-full max-w-xl text-neutral-300">
         <h2 class="text-xl font-light text-neutral-100 mb-4">{t("admin.media")}</h2>
         <p class="text-neutral-400">{t("admin.mediaIntro")}</p>
-        <p class="mt-4 text-sm text-neutral-500">Log in from Config to manage media.</p>
+        <p class="mt-4 text-base text-neutral-500">Log in from Config to manage media.</p>
       </div>
     );
   }
@@ -280,38 +280,52 @@ export default function AdminMedia() {
   };
 
   return (
-    <div class="max-w-4xl text-neutral-300">
-      <h2 class="text-xl font-light text-neutral-100 mb-4">{t("admin.media")}</h2>
-      <p class="text-neutral-400 mb-4">{t("admin.mediaIntro")}</p>
+    <div class="w-full max-w-4xl text-neutral-300">
+      <h2 class="text-xl font-light text-neutral-100 mb-2">{t("admin.media")}</h2>
+      <p class="text-neutral-400 mb-4 text-sm md:text-base">{t("admin.mediaIntro")}</p>
       {error() && <p class="mb-4 text-red-400">{error()}</p>}
 
       <button
         type="button"
         onClick={openCreate}
-        class="mb-4 px-4 py-2 rounded bg-neutral-700 hover:bg-neutral-600 text-neutral-100"
+        class="w-full min-h-[48px] mb-6 flex items-center justify-center gap-2 rounded-xl bg-neutral-700 active:bg-neutral-600 text-neutral-100 text-base touch-manipulation md:max-w-xs md:hover:bg-neutral-600"
       >
+        <PlusIcon class="h-5 w-5 shrink-0" />
         {t("admin.addMedia")}
       </button>
 
       {showModal() && (
         <div
-          class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+          class="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/70 md:p-4"
           role="dialog"
           aria-modal="true"
           onClick={e => e.target === e.currentTarget && closeModal()}
         >
-          <div class="bg-neutral-900 border border-neutral-700 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
-            <div class="p-4 border-b border-neutral-700">
-              <h3 class="text-lg text-neutral-100">{editingRow() ? t("admin.editMedia") : t("admin.addMedia")}</h3>
+          <div
+            class="bg-neutral-900 border border-neutral-700 md:rounded-xl shadow-xl w-full max-h-[95dvh] md:max-h-[90vh] md:max-w-2xl overflow-hidden flex flex-col rounded-t-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <div class="flex items-center justify-between shrink-0 p-4 border-b border-neutral-700">
+              <h3 class="text-lg text-neutral-100">
+                {editingRow() ? t("admin.editMedia") : t("admin.addMedia")}
+              </h3>
+              <button
+                type="button"
+                onClick={closeModal}
+                class="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-neutral-400 active:bg-neutral-800 active:text-white touch-manipulation md:hover:bg-neutral-800 md:hover:text-white"
+                aria-label={t("admin.cancel")}
+              >
+                <XIcon class="h-5 w-5" />
+              </button>
             </div>
-            <form onSubmit={handleSubmit} class="p-4 overflow-y-auto space-y-3 flex-1">
+            <form onSubmit={handleSubmit} class="p-4 overflow-y-auto space-y-4 flex-1">
               <div>
                 <label class="block text-sm text-neutral-400 mb-1">{t("admin.point")}</label>
                 <select
                   required
                   value={formPointId() ?? ""}
                   onInput={e => setFormPointId(parseInt(e.currentTarget.value, 10) || null)}
-                  class="w-full px-3 py-2 rounded bg-neutral-800 border border-neutral-600 text-neutral-100"
+                  class="w-full min-h-[48px] px-4 py-3 text-base rounded-xl bg-neutral-800 border border-neutral-600 text-neutral-100 touch-manipulation"
                 >
                   <option value="">—</option>
                   {pointsList().map(p => (
@@ -325,12 +339,12 @@ export default function AdminMedia() {
                   type="text"
                   value={formUrl()}
                   onInput={e => setFormUrl(e.currentTarget.value)}
-                  class="w-full px-3 py-2 rounded bg-neutral-800 border border-neutral-600 text-neutral-100 mb-2"
+                  class="w-full min-h-[48px] px-4 py-3 text-base rounded-xl bg-neutral-800 border border-neutral-600 text-neutral-100 mb-2 touch-manipulation"
                   placeholder="https://… or /media/…"
                 />
-                <div class="flex items-center gap-2 text-sm text-neutral-500">
+                <div class="flex items-center gap-2 text-sm text-neutral-500 flex-wrap">
                   <span>{t("admin.or")}</span>
-                  <label class="cursor-pointer px-3 py-1.5 rounded bg-neutral-700 hover:bg-neutral-600 text-neutral-200">
+                  <label class="min-h-[44px] flex items-center cursor-pointer px-4 py-2.5 rounded-xl bg-neutral-700 active:bg-neutral-600 text-neutral-200 touch-manipulation md:hover:bg-neutral-600">
                     <input
                       type="file"
                       accept="image/*,video/*"
@@ -348,25 +362,25 @@ export default function AdminMedia() {
                   type="text"
                   value={formTitle()}
                   onInput={e => setFormTitle(e.currentTarget.value)}
-                  class="w-full px-3 py-2 rounded bg-neutral-800 border border-neutral-600 text-neutral-100"
+                  class="w-full min-h-[48px] px-4 py-3 text-base rounded-xl bg-neutral-800 border border-neutral-600 text-neutral-100 touch-manipulation"
                 />
               </div>
               <div>
                 <label class="block text-sm text-neutral-400 mb-1">{t("admin.description")}</label>
                 <textarea ref={el => (mdeContainer = el)} class="hidden" />
               </div>
-              <div class="flex gap-2 pt-2">
+              <div class="flex gap-3 pt-2">
                 <button
                   type="submit"
                   disabled={formSubmitting()}
-                  class="px-4 py-2 rounded bg-neutral-700 hover:bg-neutral-600 text-neutral-100 disabled:opacity-50"
+                  class="flex-1 min-h-[48px] px-4 py-3 text-base rounded-xl bg-neutral-700 active:bg-neutral-600 text-neutral-100 disabled:opacity-50 touch-manipulation md:hover:bg-neutral-600"
                 >
                   {t("admin.save")}
                 </button>
                 <button
                   type="button"
                   onClick={closeModal}
-                  class="px-4 py-2 rounded bg-neutral-800 text-neutral-400 hover:text-neutral-200"
+                  class="min-h-[48px] px-4 py-3 text-base rounded-xl bg-neutral-800 text-neutral-400 active:text-neutral-200 touch-manipulation md:hover:text-neutral-200"
                 >
                   {t("admin.cancel")}
                 </button>
@@ -376,7 +390,7 @@ export default function AdminMedia() {
         </div>
       )}
 
-      <div class="mb-4 flex flex-wrap items-center gap-4">
+      <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
         <label class="flex items-center gap-2 text-sm text-neutral-400">
           {t("admin.pageSize")}
           <select
@@ -385,115 +399,132 @@ export default function AdminMedia() {
               setPageSize(Number((e.target as HTMLSelectElement).value));
               setPage(0);
             }}
-            class="rounded bg-neutral-800 border border-neutral-600 text-neutral-100 px-2 py-1"
+            class="min-h-[44px] rounded-xl bg-neutral-800 border border-neutral-600 text-neutral-100 px-3 py-2 text-base touch-manipulation"
           >
             <option value={10}>10</option>
             <option value={25}>25</option>
             <option value={50}>50</option>
           </select>
         </label>
+        <div class="flex items-center gap-2">
+          <span class="text-sm text-neutral-500">Sort:</span>
+          <select
+            value={`${sort()}-${order()}`}
+            onInput={e => {
+              const v = (e.target as HTMLSelectElement).value;
+              const [col, o] = v.split("-") as [SortCol, "asc" | "desc"];
+              setSort(col);
+              setOrder(o);
+              setPage(0);
+            }}
+            class="min-h-[44px] rounded-xl bg-neutral-800 border border-neutral-600 text-neutral-100 px-3 py-2 text-base touch-manipulation"
+          >
+            <option value="created_at-desc">{t("admin.created")} ↓</option>
+            <option value="created_at-asc">{t("admin.created")} ↑</option>
+            <option value="taken_at-desc">{t("admin.taken")} ↓</option>
+            <option value="taken_at-asc">{t("admin.taken")} ↑</option>
+            <option value="title-asc">{t("admin.title")} ↑</option>
+            <option value="title-desc">{t("admin.title")} ↓</option>
+            <option value="id-desc">ID ↓</option>
+            <option value="id-asc">ID ↑</option>
+          </select>
+        </div>
         <span class="text-sm text-neutral-500">
           {from()}–{to()} {t("admin.of")} {total()}
         </span>
-        <div class="flex gap-1">
+        <div class="flex gap-2">
           <button
             type="button"
             disabled={page() <= 0}
             onClick={() => setPage(p => Math.max(0, p - 1))}
-            class="rounded px-2 py-1 bg-neutral-700 text-neutral-200 text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+            class="min-h-[44px] px-4 py-2.5 rounded-xl bg-neutral-700 text-neutral-200 text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 touch-manipulation active:bg-neutral-600 md:hover:bg-neutral-600"
           >
-            <ChevronLeftIcon class="w-4 h-4" />
+            <ChevronLeftIcon class="w-5 h-5" />
             {t("admin.prev")}
           </button>
           <button
             type="button"
             disabled={page() >= totalPages() - 1}
             onClick={() => setPage(p => Math.min(totalPages() - 1, p + 1))}
-            class="rounded px-2 py-1 bg-neutral-700 text-neutral-200 text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+            class="min-h-[44px] px-4 py-2.5 rounded-xl bg-neutral-700 text-neutral-200 text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 touch-manipulation active:bg-neutral-600 md:hover:bg-neutral-600"
           >
             {t("admin.next")}
-            <ChevronRightIcon class="w-4 h-4" />
+            <ChevronRightIcon class="w-5 h-5" />
           </button>
         </div>
       </div>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b border-neutral-700 text-left text-neutral-400">
-              <th class="py-2 pr-2">
-                <button type="button" onClick={() => setSortCol("id")} class="hover:text-neutral-200 text-left">
-                  ID {sort() === "id" ? (order() === "asc" ? "↑" : "↓") : ""}
-                </button>
-              </th>
-              <th class="py-2 pr-2">{t("admin.point")}</th>
-              <th class="py-2 pr-2">{t("admin.type")}</th>
-              <th class="py-2 pr-2">
-                <button type="button" onClick={() => setSortCol("title")} class="hover:text-neutral-200 text-left">
-                  {t("admin.title")} {sort() === "title" ? (order() === "asc" ? "↑" : "↓") : ""}
-                </button>
-              </th>
-              <th class="py-2 pr-2">
-                <button type="button" onClick={() => setSortCol("created_at")} class="hover:text-neutral-200 text-left">
-                  {t("admin.created")} {sort() === "created_at" ? (order() === "asc" ? "↑" : "↓") : ""}
-                </button>
-              </th>
-              <th class="py-2 pr-2">
-                <button type="button" onClick={() => setSortCol("taken_at")} class="hover:text-neutral-200 text-left">
-                  {t("admin.taken")} {sort() === "taken_at" ? (order() === "asc" ? "↑" : "↓") : ""}
-                </button>
-              </th>
-              <th class="py-2 pr-2 w-24"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {mediaList().map(row => (
-              <tr class="border-b border-neutral-800">
-                <td class="py-2 pr-2 text-neutral-500">{row.id}</td>
-                <td class="py-2 pr-2">{pointLabel(row.point_id)}</td>
-                <td class="py-2 pr-2">{row.type}</td>
-                <td class="py-2 pr-2 text-neutral-200">{row.title || "—"}</td>
-                <td class="py-2 pr-2 text-neutral-500">{formatTs(row.created_at)}</td>
-                <td class="py-2 pr-2 text-neutral-500">{formatTs(row.taken_at)}</td>
-                <td class="py-2 pr-2">
-                  {deleteConfirmId() === row.id ? (
-                    <span class="flex gap-1">
-                      <button
-                        type="button"
-                        onClick={doDelete}
-                        class="px-2 py-1 rounded bg-red-900/50 text-red-300 text-xs"
-                      >
-                        {t("admin.delete")}
-                      </button>
-                      <button type="button" onClick={cancelDelete} class="px-2 py-1 text-neutral-500 text-xs">
-                        {t("admin.cancel")}
-                      </button>
-                    </span>
+      <ul class="space-y-3 list-none p-0 m-0">
+        {mediaList().map(row => (
+          <li class="border border-neutral-800 rounded-xl overflow-hidden bg-neutral-900/50">
+            <div class="flex gap-3 p-3 md:p-4">
+              <div
+                class="shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-lg bg-neutral-800 overflow-hidden flex items-center justify-center"
+                aria-hidden
+              >
+                {thumbUrl(row) ? (
+                  <img
+                    src={thumbUrl(row)!}
+                    alt=""
+                    class="w-full h-full object-cover"
+                  />
+                ) : (
+                  row.type === "video" ? (
+                    <VideoIcon class="w-8 h-8 text-neutral-500" />
                   ) : (
-                    <span class="flex gap-1">
-                      <button
-                        type="button"
-                        onClick={() => openEdit(row)}
-                        class="text-neutral-400 hover:text-neutral-200 text-xs"
-                      >
-                        {t("admin.editMedia")}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => confirmDelete(row.id)}
-                        class="text-neutral-500 hover:text-red-400 text-xs"
-                      >
-                        {t("admin.delete")}
-                      </button>
-                    </span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {mediaList().length === 0 && <p class="mt-4 text-neutral-500">No media yet.</p>}
+                    <ImageIcon class="w-8 h-8 text-neutral-500" />
+                  )
+                )}
+              </div>
+              <div class="min-w-0 flex-1 flex flex-col justify-center gap-0.5">
+                <span class="text-neutral-200 font-medium truncate">{row.title || "—"}</span>
+                <span class="text-sm text-neutral-500 truncate">{pointLabel(row.point_id)}</span>
+                <span class="text-xs text-neutral-600">
+                  {row.type} · {formatTs(row.created_at)}
+                </span>
+              </div>
+              <div class="shrink-0 flex flex-col justify-center gap-2">
+                {deleteConfirmId() === row.id ? (
+                  <div class="flex flex-col gap-1.5">
+                    <button
+                      type="button"
+                      onClick={doDelete}
+                      class="min-h-[40px] px-3 py-2 rounded-lg bg-red-900/50 text-red-300 text-sm touch-manipulation"
+                    >
+                      {t("admin.delete")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={cancelDelete}
+                      class="min-h-[40px] px-3 py-2 text-neutral-500 text-sm touch-manipulation"
+                    >
+                      {t("admin.cancel")}
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => openEdit(row)}
+                      class="min-h-[40px] px-3 py-2 rounded-lg bg-neutral-700 text-neutral-200 text-sm touch-manipulation active:bg-neutral-600 md:hover:bg-neutral-600"
+                    >
+                      {t("admin.editMedia")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => confirmDelete(row.id)}
+                      class="min-h-[40px] px-3 py-2 rounded-lg text-neutral-500 text-sm touch-manipulation active:text-red-400 md:hover:text-red-400"
+                    >
+                      {t("admin.delete")}
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+      {mediaList().length === 0 && <p class="mt-6 text-neutral-500 text-base">No media yet.</p>}
     </div>
   );
 }

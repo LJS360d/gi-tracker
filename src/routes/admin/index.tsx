@@ -95,33 +95,40 @@ export default function AdminConfig() {
   const sharing = () => (pendingSharing() ?? cfg()?.sharing_enabled ?? true);
 
   return (
-    <div class="max-w-xl text-neutral-300">
+    <div class="w-full max-w-xl text-neutral-300">
       <h2 class="text-xl font-light text-neutral-100 mb-4">{t("admin.config")}</h2>
       {error() && <p class="mb-4 text-red-400">{error()}</p>}
       {!token() ? (
-        <form onSubmit={handleTokenSubmit} class="space-y-3">
+        <form onSubmit={handleTokenSubmit} class="space-y-4">
           <input
             type="password"
             placeholder={t("admin.tokenPlaceholder")}
             value={tokenInput()}
             onInput={e => setTokenInput(e.currentTarget.value)}
-            class="w-full px-3 py-2 rounded bg-neutral-800 border border-neutral-600 text-neutral-100 placeholder-neutral-500"
+            class="w-full min-h-[48px] px-4 py-3 text-base rounded-xl bg-neutral-800 border border-neutral-600 text-neutral-100 placeholder-neutral-500 touch-manipulation"
             autocomplete="off"
           />
-          <button type="submit" class="px-4 py-2 rounded bg-neutral-700 hover:bg-neutral-600 text-neutral-100">
+          <button
+            type="submit"
+            class="w-full min-h-[48px] px-4 py-3 text-base rounded-xl bg-neutral-700 active:bg-neutral-600 text-neutral-100 touch-manipulation md:hover:bg-neutral-600"
+          >
             {t("admin.submitToken")}
           </button>
         </form>
       ) : (
         <>
-          <div class="mb-4 flex items-center justify-end">
-            <button type="button" onClick={logout} class="text-sm text-neutral-500 hover:text-neutral-300">
+          <div class="mb-6 flex justify-end">
+            <button
+              type="button"
+              onClick={logout}
+              class="min-h-[44px] min-w-[44px] px-4 py-2.5 text-base text-neutral-500 active:text-neutral-300 rounded-xl active:bg-neutral-800 touch-manipulation md:hover:bg-neutral-800 md:hover:text-neutral-300"
+            >
               Logout
             </button>
           </div>
-          <div class="space-y-6">
+          <div class="space-y-8">
             <div>
-              <label for="delay" class="block text-sm text-neutral-400 mb-1">
+              <label for="delay" class="block text-sm text-neutral-400 mb-2">
                 {t("admin.delayLabel")}
               </label>
               <input
@@ -131,25 +138,25 @@ export default function AdminConfig() {
                 max={168}
                 value={delay()}
                 onInput={e => handleDelayChange(parseInt(e.currentTarget.value, 10))}
-                class="w-full h-2 rounded bg-neutral-700 accent-neutral-400"
+                class="w-full h-3 rounded-full bg-neutral-700 accent-neutral-400 touch-manipulation [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-neutral-400"
               />
-              <span class="block mt-1 text-neutral-500">{delay()} h</span>
+              <span class="block mt-2 text-neutral-500 text-base">{delay()} h</span>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-3 min-h-[48px]">
               <input
                 id="sharing"
                 type="checkbox"
                 checked={sharing()}
                 onInput={e => handleSharingChange(e.currentTarget.checked)}
-                class="rounded border-neutral-600 bg-neutral-800 accent-neutral-400"
+                class="w-6 h-6 rounded border-neutral-600 bg-neutral-800 accent-neutral-400 touch-manipulation shrink-0"
               />
-              <label for="sharing" class="text-sm">
+              <label for="sharing" class="text-base text-neutral-200 touch-manipulation cursor-pointer">
                 {t("admin.sharingLabel")}
               </label>
             </div>
-            <div>
+            <div class="py-2">
               <span class="text-sm text-neutral-400">{t("admin.lastSync")}: </span>
-              <span class="text-neutral-200">
+              <span class="text-base text-neutral-200">
                 {status()?.last_sync_server_ts != null ? formatLastSync(status()!.last_sync_server_ts) : t("admin.never")}
               </span>
             </div>

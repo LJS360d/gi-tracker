@@ -22,6 +22,8 @@ app.config.timestamp_*.js
 .classpath
 *.launch
 .settings/
+memory-bank/
+AGENTS.md
 
 # Temp
 gitignore
