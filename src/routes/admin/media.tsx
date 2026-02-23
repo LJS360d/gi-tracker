@@ -365,7 +365,7 @@ export default function AdminMedia() {
                   class="w-full min-h-[48px] px-4 py-3 text-base rounded-xl bg-neutral-800 border border-neutral-600 text-neutral-100 touch-manipulation"
                 />
               </div>
-              <div>
+              <div class="easymde-dark">
                 <label class="block text-sm text-neutral-400 mb-1">{t("admin.description")}</label>
                 <textarea ref={el => (mdeContainer = el)} class="hidden" />
               </div>
