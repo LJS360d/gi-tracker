@@ -1,0 +1,21 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import BetsPage from "@/components/BetsPage";
+import MdiArrowLeft from "virtual:icons/mdi/arrow-left";
+---
+
+<Layout>
+  <div class="min-h-svh w-full bg-[#0d0d0d] flex flex-col pb-[env(safe-area-inset-bottom)]">
+    <header class="sticky top-0 z-40 shrink-0 border-b border-neutral-800 bg-[#1a1a1a] pt-[env(safe-area-inset-top)]">
+      <div class="flex items-center min-h-14 px-4">
+        <a href="/" class="inline-flex items-center gap-2 text-neutral-400 active:text-neutral-200 touch-manipulation -ml-1 py-2 pr-2" aria-label="Torna alla mappa">
+          <MdiArrowLeft class="h-5 w-5 shrink-0" />
+          <span>Torna alla mappa</span>
+        </a>
+      </div>
+    </header>
+    <main class="flex-1 overflow-auto w-full">
+      <BetsPage client:only />
+    </main>
+  </div>
+</Layout>

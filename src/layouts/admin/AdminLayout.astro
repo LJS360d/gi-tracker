@@ -1,0 +1,90 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import AdminBackLink from "@/layouts/admin/AdminBackLink.astro";
+import AdminNavLink from "@/layouts/admin/AdminNavLink.astro";
+import MdiCog from "virtual:icons/mdi/cog";
+import MdiImage from "virtual:icons/mdi/image";
+import { isAdminCookieValid } from "@/lib/auth";
+
+const pathname = Astro.url.pathname;
+const isLoggedIn = isAdminCookieValid(
+  Astro.cookies.get("admin_session")?.value,
+);
+const loginError = Astro.url.searchParams.get("error") === "invalid";
+
+const PAGES = [
+  { path: "/admin", label: "Config", icon: MdiCog },
+  { path: "/admin/media", label: "Media", icon: MdiImage },
+];
+
+function isActive(path: string): boolean {
+  return pathname === path || pathname === `${path}/`;
+}
+---
+
+<Layout>
+  <div class="min-h-svh bg-[#0d0d0d] flex flex-col pb-16 md:pb-0 md:flex-row">
+    {
+      !isLoggedIn ? (
+        <>
+          <header class="shrink-0 border-b border-neutral-800 bg-[#1a1a1a] pt-[env(safe-area-inset-top)]">
+            <div class="flex items-center py-3 min-h-14">
+              <AdminBackLink />
+            </div>
+          </header>
+          <main class="flex-1 overflow-auto px-4 py-4 md:px-8 md:py-6 pb-[env(safe-area-inset-bottom)] flex items-start justify-center">
+            <div class="w-full max-w-xl text-neutral-300">
+              <h2 class="text-xl font-light text-neutral-100 mb-4">Admin</h2>
+              {loginError && <p class="mb-4 text-red-400">Token non valido.</p>}
+              <form method="post" action="/api/admin/login" class="space-y-4">
+                <input
+                  type="password"
+                  name="token"
+                  placeholder="Token admin"
+                  class="w-full min-h-[48px] px-4 py-3 text-base rounded-xl bg-neutral-800 border border-neutral-600 text-neutral-100 placeholder-neutral-500 touch-manipulation"
+                  autocomplete="off"
+                />
+                <button
+                  type="submit"
+                  class="w-full min-h-[48px] px-4 py-3 text-base rounded-xl bg-neutral-700 active:bg-neutral-600 text-neutral-100 touch-manipulation md:hover:bg-neutral-600"
+                >
+                  Sblocca
+                </button>
+              </form>
+            </div>
+          </main>
+        </>
+      ) : (
+        <>
+          <header class="sticky top-0 z-40 shrink-0 border-b border-neutral-800 bg-[#1a1a1a] pt-[env(safe-area-inset-top)]">
+            <div class="flex md:flex-col items-center justify-between gap-3 py-3 min-h-14 md:min-h-12">
+              <AdminBackLink />
+              <nav
+                class="hidden md:w-full md:flex md:flex-col md:items-center md:gap-1"
+                aria-label="Navigazione admin"
+              >
+                {PAGES.map((page) => (
+                  <AdminNavLink page={page} isActive={isActive(page.path)} />
+                ))}
+              </nav>
+            </div>
+          </header>
+
+          <main class="flex-1 overflow-auto px-4 py-4 md:px-8 md:py-6 pb-[env(safe-area-inset-bottom)]">
+            <slot />
+          </main>
+
+          <nav
+            class="fixed bottom-0 left-0 right-0 z-40 flex items-stretch border-t border-neutral-800 bg-[#1a1a1a] pb-[env(safe-area-inset-bottom)] md:hidden"
+            role="tablist"
+            aria-label="Navigazione admin"
+          >
+            {PAGES.map((page) => (
+              <AdminNavLink page={page} isActive={isActive(page.path)} />
+            ))}
+          </nav>
+        </>
+      )
+    }
+  </div>
+</Layout>
