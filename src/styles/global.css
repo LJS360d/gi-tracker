@@ -1,7 +1,10 @@
 @import "tailwindcss";
-
+@plugin "@tailwindcss/typography";
 @plugin "daisyui" {
-    themes: cupcake --default, night --prefersdark, night;
+    themes:
+        cupcake --default,
+        night --prefersdark,
+        night;
     root: ":root";
     /* include: ; */
     /* exclude: rootscrollgutter; */
@@ -12,11 +15,35 @@
 :root {
     --background: #0d0d0d;
     --foreground: #e5e5e5;
+
+    --editor-bg: #262626;
+    --editor-surface: #1a1a1a;
+    --editor-gutter: #1f1f1f;
+    --editor-border: #525252;
+    --editor-muted: #737373;
+    --editor-icon: #a3a3a3;
+    --editor-selection: #404040;
+    --editor-activeline: #363636;
+    --editor-link: #93c5fd;
+    --editor-tag: #86efac;
+    --editor-attribute: #c4b5fd;
+    --editor-comment-bg: rgba(255, 255, 255, 0.06);
 }
 
 html,
 body {
     height: 100svh;
+}
+
+.milkdown .crepe-container {
+    --milkdown-color-primary: #a3a3a3;
+    --milkdown-bg-main: #262626; /* neutral-800 */
+    border: none !important;
+}
+
+.milkdown .crepe-container .editor {
+    max-height: 300px;
+    overflow-y: auto;
 }
 
 .tv-display {
@@ -37,4 +64,153 @@ body {
 .tv-display .leaflet-control-zoom a:hover {
     background: #2a2a2a;
     color: #fff;
+}
+
+.easymde-dark .EasyMDEContainer .CodeMirror,
+.easymde-dark .EasyMDEContainer .CodeMirror .CodeMirror-gutters {
+    background: var(--editor-bg);
+    color: var(--foreground);
+    border-color: var(--editor-border);
+}
+.easymde-dark .EasyMDEContainer .CodeMirror-focused .CodeMirror-selected,
+.easymde-dark .EasyMDEContainer .CodeMirror .CodeMirror-selected {
+    background: var(--editor-selection);
+}
+.easymde-dark .EasyMDEContainer .CodeMirror-line::selection,
+.easymde-dark .EasyMDEContainer .CodeMirror-line > span::selection,
+.easymde-dark .EasyMDEContainer .CodeMirror-line > span > span::selection {
+    background: var(--editor-selection);
+}
+.easymde-dark .EasyMDEContainer .CodeMirror-line::-moz-selection,
+.easymde-dark .EasyMDEContainer .CodeMirror-line > span::-moz-selection,
+.easymde-dark .EasyMDEContainer .CodeMirror-line > span > span::-moz-selection {
+    background: var(--editor-selection);
+}
+.easymde-dark .EasyMDEContainer .CodeMirror-cursor {
+    border-left-color: var(--foreground);
+}
+.easymde-dark .EasyMDEContainer .CodeMirror-activeline-background {
+    background: var(--editor-activeline);
+}
+.easymde-dark .EasyMDEContainer .CodeMirror-gutter-filler,
+.easymde-dark .EasyMDEContainer .CodeMirror-gutters {
+    background: var(--editor-gutter);
+    border-color: var(--editor-border);
+}
+.easymde-dark .EasyMDEContainer .CodeMirror-linenumber {
+    color: var(--editor-muted);
+}
+
+.easymde-dark .editor-toolbar {
+    background: var(--editor-bg);
+    border-color: var(--editor-border);
+}
+.easymde-dark .editor-toolbar button,
+.easymde-dark .editor-toolbar .easymde-dropdown {
+    color: var(--editor-icon);
+}
+.easymde-dark .editor-toolbar button:hover,
+.easymde-dark .editor-toolbar button.active,
+.easymde-dark .editor-toolbar .easymde-dropdown:hover {
+    background: var(--editor-selection);
+    border-color: var(--editor-border);
+    color: var(--foreground);
+}
+.easymde-dark .editor-toolbar i.separator {
+    border-left-color: var(--editor-border);
+    border-right-color: var(--editor-selection);
+}
+.easymde-dark .editor-toolbar button.table {
+    display: inline-block;
+    width: 30px;
+}
+.easymde-dark .editor-toolbar.fullscreen {
+    background: var(--editor-bg);
+    border: 0;
+}
+.easymde-dark .editor-toolbar.fullscreen::before,
+.easymde-dark .editor-toolbar.fullscreen::after {
+    background: transparent;
+}
+
+.easymde-dark .editor-statusbar {
+    color: var(--editor-muted);
+}
+
+.easymde-dark .editor-preview,
+.easymde-dark .editor-preview-side {
+    background: var(--editor-surface);
+    border-color: var(--editor-border);
+    color: var(--foreground);
+}
+.easymde-dark .editor-preview pre {
+    background: var(--editor-bg);
+}
+.easymde-dark .editor-preview table td,
+.easymde-dark .editor-preview table th {
+    border-color: var(--editor-border);
+}
+
+.easymde-dark .EasyMDEContainer .CodeMirror-fullscreen {
+    background: var(--editor-bg);
+}
+
+.easymde-dark .cm-s-easymde .cm-header-1,
+.easymde-dark .cm-s-easymde .cm-header-2,
+.easymde-dark .cm-s-easymde .cm-header-3,
+.easymde-dark .cm-s-easymde .cm-header-4,
+.easymde-dark .cm-s-easymde .cm-header-5,
+.easymde-dark .cm-s-easymde .cm-header-6 {
+    color: var(--foreground);
+}
+.easymde-dark .cm-s-easymde .cm-quote {
+    color: var(--editor-icon);
+}
+.easymde-dark .cm-s-easymde .cm-link {
+    color: var(--editor-link);
+}
+.easymde-dark .cm-s-easymde .cm-url {
+    color: var(--editor-muted);
+}
+.easymde-dark .cm-s-easymde .cm-comment {
+    background: var(--editor-comment-bg);
+    color: var(--editor-muted);
+}
+.easymde-dark .cm-s-easymde .cm-tag {
+    color: var(--editor-tag);
+}
+.easymde-dark .cm-s-easymde .cm-attribute {
+    color: var(--editor-attribute);
+}
+.easymde-dark .cm-s-easymde .cm-string {
+    color: var(--editor-link);
+}
+
+.easymde-dark .easymde-dropdown-content {
+    background-color: var(--editor-bg);
+    border: 1px solid var(--editor-border);
+    color: var(--foreground);
+}
+.easymde-dark .easymde-dropdown-content button:hover {
+    background: var(--editor-selection);
+    color: var(--foreground);
+}
+.easymde-dark .editor-toolbar .easymde-dropdown {
+    background: linear-gradient(
+        to bottom right,
+        var(--editor-bg) 0,
+        var(--editor-bg) 84%,
+        var(--editor-border) 50%,
+        var(--editor-border) 100%
+    );
+    border-color: var(--editor-border);
+}
+.easymde-dark .editor-toolbar .easymde-dropdown:hover {
+    background: linear-gradient(
+        to bottom right,
+        var(--editor-bg) 0,
+        var(--editor-bg) 84%,
+        var(--editor-border) 50%,
+        var(--editor-border) 100%
+    );
 }

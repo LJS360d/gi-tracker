@@ -2,6 +2,7 @@ import type { Accessor } from "solid-js";
 import { Show } from "solid-js";
 import ChevronLeftIcon from "virtual:icons/mdi/chevron-left";
 import ChevronRightIcon from "virtual:icons/mdi/chevron-right";
+import snarkdown from "snarkdown";
 
 export type MediaItem = {
   type: "image" | "video";
@@ -104,13 +105,20 @@ export default function MediaModal(props: Props) {
               )}
 
               <div class="p-4">
-                <h2
-                  id="media-modal-title"
-                  class="mb-2 text-lg font-medium text-white"
-                >
-                  {m().title}
-                </h2>
-                <p class="mb-4 text-sm text-neutral-400">{m().description}</p>
+                <Show when={m().title}>
+                  <h2
+                    id="media-modal-title"
+                    class="mb-2 text-lg font-medium text-white"
+                  >
+                    {m().title}
+                  </h2>
+                </Show>
+                <Show when={!!m().description}>
+                  <p
+                    class="mb-4 text-sm text-neutral-400 prose prose-invert max-w-none"
+                    innerHTML={snarkdown(m().description)}
+                  />
+                </Show>
                 <Show
                   when={m().type === "video" && localVideo()}
                   fallback={

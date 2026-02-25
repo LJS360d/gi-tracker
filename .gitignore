@@ -30,3 +30,6 @@ pnpm-debug.log*
 
 # certificates
 .certs/
+
+# media upload dir
+public/media

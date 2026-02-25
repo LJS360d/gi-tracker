@@ -6,6 +6,7 @@ import MdiImage from "virtual:icons/mdi/image";
 import MdiVideo from "virtual:icons/mdi/video";
 import MdiPlus from "virtual:icons/mdi/plus";
 import MdiClose from "virtual:icons/mdi/close";
+import { MdEditor } from "./MdEditor";
 
 type PointOption = { id: number; device_ts: number; lat: number; lng: number };
 type MediaRow = {
@@ -33,7 +34,10 @@ function formatPoint(p: PointOption) {
 
 function formatTs(sec: number | null): string {
   if (sec == null) return "—";
-  return new Date(sec * 1000).toLocaleString("it-IT", { dateStyle: "short", timeStyle: "short" });
+  return new Date(sec * 1000).toLocaleString("it-IT", {
+    dateStyle: "short",
+    timeStyle: "short",
+  });
 }
 
 function thumbUrl(row: MediaRow): string | null {
@@ -47,7 +51,9 @@ export default function AdminMedia() {
   const [error, setError] = createSignal<string | null>(null);
   const [showModal, setShowModal] = createSignal(false);
   const [editingRow, setEditingRow] = createSignal<MediaRow | null>(null);
-  const [deleteConfirmId, setDeleteConfirmId] = createSignal<number | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = createSignal<number | null>(
+    null,
+  );
 
   const [page, setPage] = createSignal(0);
   const [pageSize, setPageSize] = createSignal(25);
@@ -68,8 +74,16 @@ export default function AdminMedia() {
   function loadMedia() {
     const limit = pageSize();
     const offset = page() * limit;
-    const params = new URLSearchParams({ limit: String(limit), offset: String(offset), sort: sort(), order: order() });
-    fetch(`/api/admin/media?${params}`, { ...adminFetchOpts, headers: apiHeaders() })
+    const params = new URLSearchParams({
+      limit: String(limit),
+      offset: String(offset),
+      sort: sort(),
+      order: order(),
+    });
+    fetch(`/api/admin/media?${params}`, {
+      ...adminFetchOpts,
+      headers: apiHeaders(),
+    })
       .then((r) => {
         if (r.status === 401) {
           setError("Sessione scaduta.");
@@ -83,7 +97,10 @@ export default function AdminMedia() {
   }
 
   function loadPoints() {
-    fetch("/api/admin/points?limit=300", { ...adminFetchOpts, headers: apiHeaders() })
+    fetch("/api/admin/points?limit=300", {
+      ...adminFetchOpts,
+      headers: apiHeaders(),
+    })
       .then((r) => {
         if (r.status === 401) {
           setError("Sessione scaduta.");
@@ -193,7 +210,12 @@ export default function AdminMedia() {
         })
         .finally(() => setFormSubmitting(false));
     } else {
-      const payload: Record<string, unknown> = { point_id: pointId, url, title, description };
+      const payload: Record<string, unknown> = {
+        point_id: pointId,
+        url,
+        title,
+        description,
+      };
       const ta = formTakenAt();
       const tlat = formTakenLat();
       const tlng = formTakenLng();
@@ -229,7 +251,11 @@ export default function AdminMedia() {
   function doDelete() {
     const id = deleteConfirmId();
     if (id == null) return;
-    fetch(`/api/admin/media/${id}`, { method: "DELETE", ...adminFetchOpts, headers: apiHeaders() }).then((r) => {
+    fetch(`/api/admin/media/${id}`, {
+      method: "DELETE",
+      ...adminFetchOpts,
+      headers: apiHeaders(),
+    }).then((r) => {
       if (r.status === 204 || r.ok) {
         setDeleteConfirmId(null);
         loadMedia();
@@ -250,12 +276,19 @@ export default function AdminMedia() {
   return (
     <div class="w-full max-w-4xl text-neutral-300">
       <h2 class="text-xl font-light text-neutral-100 mb-2">Media</h2>
-      <p class="text-neutral-400 mb-4 text-sm md:text-base">Carica e gestisci foto e video sui punti del percorso.</p>
+      <p class="text-neutral-400 mb-4 text-sm md:text-base">
+        Carica e gestisci foto e video sui punti del percorso.
+      </p>
       {error() && (
         <p class="mb-4 text-red-400">
           {error()}
           {error() === "Sessione scaduta." && (
-            <> <a href="/admin" class="underline">Accedi di nuovo</a></>
+            <>
+              {" "}
+              <a href="/admin" class="underline">
+                Accedi di nuovo
+              </a>
+            </>
           )}
         </p>
       )}
@@ -263,7 +296,7 @@ export default function AdminMedia() {
       <button
         type="button"
         onClick={openCreate}
-        class="w-full min-h-[48px] mb-6 flex items-center justify-center gap-2 rounded-xl bg-neutral-700 active:bg-neutral-600 text-neutral-100 text-base touch-manipulation md:max-w-xs md:hover:bg-neutral-600"
+        class="w-full min-h-12 mb-6 flex items-center justify-center gap-2 rounded-xl bg-neutral-700 active:bg-neutral-600 text-neutral-100 text-base touch-manipulation md:max-w-xs md:hover:bg-neutral-600"
       >
         <MdiPlus class="h-5 w-5 shrink-0" />
         Aggiungi media
@@ -287,20 +320,25 @@ export default function AdminMedia() {
               <button
                 type="button"
                 onClick={closeModal}
-                class="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-neutral-400 active:bg-neutral-800 active:text-white touch-manipulation md:hover:bg-neutral-800 md:hover:text-white"
+                class="min-h-11 min-w-11 flex items-center justify-center rounded-xl text-neutral-400 active:bg-neutral-800 active:text-white touch-manipulation md:hover:bg-neutral-800 md:hover:text-white"
                 aria-label="Annulla"
               >
                 <MdiClose class="h-5 w-5" />
               </button>
             </div>
-            <form onSubmit={handleSubmit} class="p-4 overflow-y-auto space-y-4 flex-1">
+            <form
+              onSubmit={handleSubmit}
+              class="p-4 overflow-y-auto space-y-4 flex-1"
+            >
               <div>
                 <label class="block text-sm text-neutral-400 mb-1">Punto</label>
                 <select
                   required
                   value={formPointId() ?? ""}
-                  onInput={(e) => setFormPointId(parseInt(e.currentTarget.value, 10) || null)}
-                  class="w-full min-h-[48px] px-4 py-3 text-base rounded-xl bg-neutral-800 border border-neutral-600 text-neutral-100 touch-manipulation"
+                  onInput={(e) =>
+                    setFormPointId(parseInt(e.currentTarget.value, 10) || null)
+                  }
+                  class="w-full min-h-12 px-4 py-3 text-base rounded-xl bg-neutral-800 border border-neutral-600 text-neutral-100 touch-manipulation"
                 >
                   <option value="">—</option>
                   {pointsList().map((p) => (
@@ -314,12 +352,12 @@ export default function AdminMedia() {
                   type="text"
                   value={formUrl()}
                   onInput={(e) => setFormUrl(e.currentTarget.value)}
-                  class="w-full min-h-[48px] px-4 py-3 text-base rounded-xl bg-neutral-800 border border-neutral-600 text-neutral-100 mb-2 touch-manipulation"
-                  placeholder="https://… oppure /media/…"
+                  class="w-full min-h-12 px-4 py-3 text-base rounded-xl bg-neutral-800 border border-neutral-600 text-neutral-100 mb-2 touch-manipulation"
+                  placeholder="https://…"
                 />
                 <div class="flex items-center gap-2 text-sm text-neutral-500 flex-wrap">
                   <span>oppure</span>
-                  <label class="min-h-[44px] flex items-center cursor-pointer px-4 py-2.5 rounded-xl bg-neutral-700 active:bg-neutral-600 text-neutral-200 touch-manipulation md:hover:bg-neutral-600">
+                  <label class="min-h-11 flex items-center cursor-pointer px-4 py-2.5 rounded-xl bg-neutral-700 active:bg-neutral-600 text-neutral-200 touch-manipulation md:hover:bg-neutral-600">
                     <input
                       type="file"
                       accept="image/*,video/*"
@@ -332,34 +370,37 @@ export default function AdminMedia() {
                 </div>
               </div>
               <div>
-                <label class="block text-sm text-neutral-400 mb-1">Titolo</label>
+                <label class="block text-sm text-neutral-400 mb-1">
+                  Titolo
+                </label>
                 <input
                   type="text"
                   value={formTitle()}
                   onInput={(e) => setFormTitle(e.currentTarget.value)}
-                  class="w-full min-h-[48px] px-4 py-3 text-base rounded-xl bg-neutral-800 border border-neutral-600 text-neutral-100 touch-manipulation"
+                  class="w-full min-h-12 px-4 py-3 text-base rounded-xl bg-neutral-800 border border-neutral-600 text-neutral-100 touch-manipulation"
                 />
               </div>
-              <div>
-                <label class="block text-sm text-neutral-400 mb-1">Descrizione</label>
-                <textarea
+              <div class="easymde-dark">
+                <label class="block text-sm text-neutral-400 mb-1">
+                  Descrizione (Markdown)
+                </label>
+                <MdEditor
                   value={formDescription()}
-                  onInput={(e) => setFormDescription(e.currentTarget.value)}
-                  class="w-full min-h-[120px] px-4 py-3 text-base rounded-xl bg-neutral-800 border border-neutral-600 text-neutral-100 touch-manipulation resize-y"
+                  onChange={(md) => setFormDescription(md)}
                 />
               </div>
               <div class="flex gap-3 pt-2">
                 <button
                   type="submit"
                   disabled={formSubmitting()}
-                  class="flex-1 min-h-[48px] px-4 py-3 text-base rounded-xl bg-neutral-700 active:bg-neutral-600 text-neutral-100 disabled:opacity-50 touch-manipulation md:hover:bg-neutral-600"
+                  class="flex-1 min-h-12 px-4 py-3 text-base rounded-xl bg-neutral-700 active:bg-neutral-600 text-neutral-100 disabled:opacity-50 touch-manipulation md:hover:bg-neutral-600"
                 >
                   Salva
                 </button>
                 <button
                   type="button"
                   onClick={closeModal}
-                  class="min-h-[48px] px-4 py-3 text-base rounded-xl bg-neutral-800 text-neutral-400 active:text-neutral-200 touch-manipulation md:hover:text-neutral-200"
+                  class="min-h-12 px-4 py-3 text-base rounded-xl bg-neutral-800 text-neutral-400 active:text-neutral-200 touch-manipulation md:hover:text-neutral-200"
                 >
                   Annulla
                 </button>
@@ -442,7 +483,11 @@ export default function AdminMedia() {
                 aria-hidden
               >
                 {thumbUrl(row) ? (
-                  <img src={thumbUrl(row)!} alt="" class="w-full h-full object-cover" />
+                  <img
+                    src={thumbUrl(row)!}
+                    alt=""
+                    class="w-full h-full object-cover"
+                  />
                 ) : row.type === "video" ? (
                   <MdiVideo class="w-8 h-8 text-neutral-500" />
                 ) : (
@@ -450,8 +495,12 @@ export default function AdminMedia() {
                 )}
               </div>
               <div class="min-w-0 flex-1 flex flex-col justify-center gap-0.5">
-                <span class="text-neutral-200 font-medium truncate">{row.title || "—"}</span>
-                <span class="text-sm text-neutral-500 truncate">{pointLabel(row.point_id)}</span>
+                <span class="text-neutral-200 font-medium truncate">
+                  {row.title || "—"}
+                </span>
+                <span class="text-sm text-neutral-500 truncate">
+                  {pointLabel(row.point_id)}
+                </span>
                 <span class="text-xs text-neutral-600">
                   {row.type} · {formatTs(row.created_at)}
                 </span>
@@ -497,7 +546,9 @@ export default function AdminMedia() {
           </li>
         ))}
       </ul>
-      {mediaList().length === 0 && <p class="mt-6 text-neutral-500 text-base">Nessun media ancora.</p>}
+      {mediaList().length === 0 && (
+        <p class="mt-6 text-neutral-500 text-base">Nessun media ancora.</p>
+      )}
     </div>
   );
 }
