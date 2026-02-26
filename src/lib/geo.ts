@@ -90,3 +90,70 @@ export function downsampleTrack(
   result.sort((a, b) => a.device_ts - b.device_ts);
   return result;
 }
+
+import {
+  getDelayHours,
+  getMediaByPointIds,
+  isSharingEnabled,
+  listPointsBeforeCutoff,
+} from "@/lib/db";
+
+export type PublicTrackMediaEntry = {
+  pointIndex: number;
+  type: "image" | "video";
+  url: string;
+  title: string;
+  description: string;
+};
+
+export type PublicTrackData = {
+  points: Point[];
+  media: PublicTrackMediaEntry[];
+  delay_hours: number;
+};
+
+export async function getPublicTrackData(): Promise<PublicTrackData> {
+  const sharingEnabled = await isSharingEnabled();
+  const delayHours = await getDelayHours();
+  if (!sharingEnabled) {
+    return { points: [], media: [], delay_hours: delayHours };
+  }
+
+  const cutoff = Date.now() - delayHours * 60 * 60 * 1000;
+  const rows = await listPointsBeforeCutoff(cutoff);
+  const trackPoints: Point[] = rows.map((r) => ({
+    lat: r.lat,
+    lng: r.lng,
+    device_ts: r.deviceTs,
+    segment_type: r.segmentType ?? "ground",
+    address: r.address ?? null,
+    raw_address: (r.rawAddress as Point["raw_address"]) ?? null,
+  }));
+
+  const downsampled = downsampleTrack(trackPoints);
+  const downsampledIds = downsampled.map(
+    (p) =>
+      rows.find(
+        (r) =>
+          r.lat === p.lat &&
+          r.lng === p.lng &&
+          r.deviceTs === p.device_ts,
+      )!.id,
+  );
+
+  const mediaRows = await getMediaByPointIds(downsampledIds);
+  const media: PublicTrackMediaEntry[] = mediaRows.map((m) => ({
+    pointIndex: downsampledIds.indexOf(m.pointId),
+    type: m.type as "image" | "video",
+    url: m.url,
+    title: m.title,
+    description: m.description,
+  }));
+
+  return {
+    points: downsampled,
+    media,
+    delay_hours: delayHours,
+  };
+}
+

@@ -29,7 +29,7 @@ export async function getDownsampledPointOptions(): Promise<PointOption[]> {
         lat: r.lat,
         lng: r.lng,
         address: r.address ?? null,
-        raw_address: r.rawAddress ?? null,
+        raw_address: r.rawAddress as Point["raw_address"] ?? null,
       };
     })
     .sort((a, b) => b.device_ts - a.device_ts);

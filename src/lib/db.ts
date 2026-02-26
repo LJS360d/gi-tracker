@@ -6,6 +6,7 @@ import {
   betQuestions,
   betAnswers,
   eq,
+  lt,
   desc,
   asc,
   inArray,
@@ -55,6 +56,22 @@ export async function getLastSyncServerTs(): Promise<number | null> {
     .orderBy(desc(points.serverTs))
     .limit(1);
   return row?.serverTs ?? null;
+}
+
+export async function listPointsBeforeCutoff(cutoff: number) {
+  return await db
+    .select({
+      id: points.id,
+      lat: points.lat,
+      lng: points.lng,
+      deviceTs: points.deviceTs,
+      segmentType: points.segmentType,
+      address: points.address,
+      rawAddress: points.rawAddress,
+    })
+    .from(points)
+    .where(lt(points.deviceTs, cutoff))
+    .orderBy(asc(points.deviceTs));
 }
 
 export async function getMediaByPointIds(pointIds: number[]) {

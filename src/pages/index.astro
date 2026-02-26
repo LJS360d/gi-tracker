@@ -1,8 +1,12 @@
 ---
 import Map from "@/components/Map";
 import Layout from "../layouts/Layout.astro";
-import MdiSettings from 'virtual:icons/mdi/settings';
-import MdiDiceD20 from 'virtual:icons/mdi/dice-d20';
+import MdiSettings from "virtual:icons/mdi/settings";
+import MdiDiceD20 from "virtual:icons/mdi/dice-d20";
+import { getPublicTrackData } from "@/lib/geo";
+
+const trackData = await getPublicTrackData();
+const initialTrack = { points: trackData.points, media: trackData.media };
 ---
 
 <Layout>
@@ -13,6 +17,6 @@ import MdiDiceD20 from 'virtual:icons/mdi/dice-d20';
         <a href="/bets" title="Bets" class="absolute top-16 right-4 btn btn-circle z-1000 active:scale-75 border-gray-400 border transition-all duration-300">
             <MdiDiceD20 />
         </a>
-        <Map client:only />
+        <Map client:only="solid" initialTrack={initialTrack} />
     </main>
 </Layout>

@@ -34,6 +34,7 @@ type Props = {
   initialCenter?: [number, number];
   initialZoom?: number;
   animateTrack?: boolean;
+  initialTrack?: TrackApiResponse | null;
 };
 
 type Segment = { type: string; startIndex: number; endIndex: number };
@@ -103,7 +104,14 @@ export default function Map(props: Props) {
   const [modalMediaList, setModalMediaList] = createSignal<MediaItem[] | null>(null);
   const [modalIndex, setModalIndex] = createSignal(0);
   const [mapReady, setMapReady] = createSignal(false);
-  const [trackResource] = createResource(fetchTrack);
+  const [trackResource] = createResource(
+    () => (props.initialTrack != null ? undefined : {}),
+    () => fetchTrack(),
+  );
+  const trackData = () =>
+    props.initialTrack ?? trackResource() ?? null;
+  const trackLoading = () =>
+    props.initialTrack != null ? false : trackResource.loading;
   const animate = props.animateTrack !== false;
 
   const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
@@ -141,8 +149,8 @@ export default function Map(props: Props) {
   });
 
   createEffect(() => {
-    if (!mapReady() || !map || trackResource.loading) return;
-    const data = trackResource();
+    if (!mapReady() || !map || trackLoading()) return;
+    const data = trackData();
     if (!data) return;
     const points = data.points ?? [];
     const media = data.media ?? [];
@@ -234,7 +242,7 @@ export default function Map(props: Props) {
           class="w-full h-full"
           aria-hidden="true"
         />
-        <Show when={trackResource.loading}>
+        <Show when={trackLoading()}>
           <div class="absolute bottom-3 left-3 flex items-center gap-2 py-2.5 px-3 bg-slate-900/95 text-slate-100 text-sm font-medium rounded-lg shadow-lg ring-1 ring-white/20 z-1000">
             <span class="size-3.5 shrink-0 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             Loading track…
