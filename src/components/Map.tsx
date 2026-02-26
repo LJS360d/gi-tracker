@@ -27,8 +27,6 @@ const SEGMENT_STYLE: Record<string, L.PolylineOptions> = {
   boat: { color: "#38bdf8", weight: 3, dashArray: "12,6" },
 };
 
-const REVEAL_DURATION_MS = 1500;
-
 type Props = {
   class?: string;
   initialCenter?: [number, number];
@@ -162,6 +160,7 @@ export default function Map(props: Props) {
             polylines.push(line);
           }
           const start = performance.now();
+          const REVEAL_DURATION_MS = Math.min(1500, segments.length * 10);
           const tick = () => {
             const elapsed = performance.now() - start;
             const t = Math.min(1, elapsed / REVEAL_DURATION_MS);
