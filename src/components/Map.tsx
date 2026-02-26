@@ -1,6 +1,6 @@
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { createSignal, onCleanup, onMount } from "solid-js";
+import { createSignal, onCleanup, onMount, Show } from "solid-js";
 import MediaModal, { type MediaItem } from "@/components/MediaModal";
 
 const TILES_PROVIDER =
@@ -39,7 +39,6 @@ type Props = {
 type Segment = { type: string; startIndex: number; endIndex: number };
 
 const CLUSTER_RADIUS_DEG = 0.001;
-const POINT_HOVER_THRESHOLD_PX = 8;
 
 function distDeg(
   a: { lat: number; lng: number },
@@ -96,6 +95,7 @@ export default function Map(props: Props) {
   const mediaMarkers: L.Layer[] = [];
   const [modalMediaList, setModalMediaList] = createSignal<MediaItem[] | null>(null);
   const [modalIndex, setModalIndex] = createSignal(0);
+  const [loading, setLoading] = createSignal(true);
   const animate = props.animateTrack !== false;
 
   const isMobile = window.innerWidth <= 768;
@@ -120,6 +120,7 @@ export default function Map(props: Props) {
     fetch("/api/track")
       .then((r) => r.json())
       .then((data: { points?: TrackPoint[]; media?: MediaEntry[] }) => {
+        setLoading(false);
         const points = data?.points ?? [];
         const media = data?.media ?? [];
         if (points.length === 0) return;
@@ -162,7 +163,7 @@ export default function Map(props: Props) {
             polylines.push(line);
           }
           const start = performance.now();
-          const REVEAL_DURATION_MS = Math.min(1500, segments.length * 10);
+          const REVEAL_DURATION_MS = Math.min(5000, segments.length * 100);
           const tick = () => {
             const elapsed = performance.now() - start;
             const t = Math.min(1, elapsed / REVEAL_DURATION_MS);
@@ -199,7 +200,7 @@ export default function Map(props: Props) {
           map!.fitBounds(bounds, { padding: [20, 20], maxZoom: 10 });
         }
       })
-      .catch(() => {});
+      .catch(() => setLoading(false));
 
     const onResize = () => map?.invalidateSize();
     window.addEventListener("resize", onResize);
@@ -218,11 +219,20 @@ export default function Map(props: Props) {
   return (
     <>
       <div
-        ref={(el) => (container = el)}
-        class={props.class}
-        style={{ width: "100%", height: "100%", "min-height": "200px" }}
-        aria-hidden="true"
-      />
+        class={`relative w-full h-full min-h-[200px] ${props.class ?? ""}`.trim()}
+      >
+        <div
+          ref={(el) => (container = el)}
+          class="w-full h-full"
+          aria-hidden="true"
+        />
+        <Show when={loading()}>
+          <div class="absolute bottom-3 left-3 flex items-center gap-2 py-2.5 px-3 bg-slate-900/95 text-slate-100 text-sm font-medium rounded-lg shadow-lg ring-1 ring-white/20 z-1000">
+            <span class="size-3.5 shrink-0 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            Loading track…
+          </div>
+        </Show>
+      </div>
       <MediaModal
         list={modalMediaList}
         index={modalIndex}
