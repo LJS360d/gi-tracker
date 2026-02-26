@@ -1,6 +1,7 @@
 import { createEffect, createSignal } from "solid-js";
 import { adminFetchOpts, apiHeaders } from "@/lib/admin-client";
-import { debounce } from "lodash";
+import pkg from 'lodash';
+const { debounce } = pkg;
 
 type Config = { delay_hours: number; sharing_enabled: boolean };
 type Status = { last_sync_server_ts: number | null };
