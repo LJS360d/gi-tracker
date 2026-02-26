@@ -11,11 +11,25 @@ import Icons from "unplugin-icons/vite";
 import path from "path";
 
 const isVercel = process.env.VERCEL === "1";
+const site = isVercel && process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
+  : undefined;
+
+const adapter = () => {
+  if (isVercel) {
+    return vercel({});
+  }
+  return bun();
+}
 
 // https://astro.build/config
 export default defineConfig({
   output: "server",
-  adapter: isVercel ? vercel({}) : bun(),
+  adapter: adapter(),
+  site,
+  security: {
+    checkOrigin: !isVercel,
+  },
   integrations: [
     solidJs(),
     db(),

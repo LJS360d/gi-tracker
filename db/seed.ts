@@ -1,13 +1,8 @@
-import { db, points, media, config, betQuestions } from "astro:db";
+import { betQuestions, config, db, media, points } from "astro:db";
 
 // https://astro.build/db/seed
 export default async function seed() {
   // Only run in development
-  if (import.meta.env.PROD) {
-    console.log("Not in development environment, skipping seed.");
-    return;
-  }
-
   const now = Date.now();
   const hour = 60 * 60 * 1000;
 

@@ -39,7 +39,9 @@ bun run start
 
 ## Env
 
-- `ASTRO_DATABASE_FILE` — path to SQLite file (default `dist/main.db`, should change it for dev).
+- `ASTRO_DATABASE_FILE` (for local development)
+  - `ASTRO_DB_REMOTE_URL` (for managed remote libSQL compliant DB, Turso)
+  - `ASTRO_DB_APP_TOKEN`
 - `ADMIN_ACCESS_TOKEN`
 - `UPLOAD_DIR`
 - `INGEST_TOKEN`

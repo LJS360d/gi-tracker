@@ -11,7 +11,11 @@
     "build": "astro build",
     "start": "bunx --bun ./dist/server/entry.mjs",
     "preview": "bunx --bun astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "db:push": "astro db push --remote",
+    "db:seed": "astro db execute db/seed.ts --remote",
+    "db:verify": "astro db verify --remote",
+    "db:seed:prod": "astro db execute db/seed_prod.ts --remote"
   },
   "dependencies": {
     "@astrojs/db": "^0.19.0",
