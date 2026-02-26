@@ -12,7 +12,7 @@ Web app that shows a delayed GPS track on a map so people can follow a travelerâ
 ## Tech stack
 
 - [Astro](https://start.solidjs.com), Solidjs and astro:db integrations, TailwindCSS v4, Leaflet (CartoDB Dark Matter), PWA.
-- Runtime: **Bun** (Node â‰¥24 also supported).
+- Runtime: **Bun** (Node >=22 also supported).
 
 ## Setup
 
