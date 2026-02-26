@@ -173,9 +173,41 @@ export async function listPointsForAdmin(limit = 200) {
     .limit(limit);
 }
 
+export async function listAllPointsForDownsampling(limit = 10000) {
+  return await db
+    .select({
+      id: points.id,
+      deviceTs: points.deviceTs,
+      lat: points.lat,
+      lng: points.lng,
+      address: points.address,
+      rawAddress: points.rawAddress,
+    })
+    .from(points)
+    .orderBy(asc(points.deviceTs))
+    .limit(limit);
+}
+
 export async function getPointById(id: number) {
   const [row] = await db.select().from(points).where(eq(points.id, id));
   return row ?? null;
+}
+
+export async function insertPointFromCoords(
+  lat: number,
+  lng: number,
+  deviceTs?: number,
+): Promise<{ id: number } | null> {
+  const now = Math.floor(Date.now() / 1000);
+  const row = {
+    lat,
+    lng,
+    deviceTs: deviceTs ?? now,
+    serverTs: now,
+    segmentType: "ground",
+  };
+  const [inserted] = await db.insert(points).values(row).returning();
+  return inserted ? { id: inserted.id } : null;
 }
 
 export type IngestPayload = {

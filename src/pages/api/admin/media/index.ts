@@ -4,6 +4,7 @@ import {
   countMedia,
   getPointById,
   insertMedia,
+  insertPointFromCoords,
   listMediaWithPoints,
   type ListMediaFilters,
   type MediaSortColumn,
@@ -94,17 +95,30 @@ export const POST: APIRoute = async ({ request }) => {
   const url = body.url;
   const title = body.title ?? "";
   const description = body.description ?? "";
-  if (point_id == null || typeof point_id !== "number") {
-    return jsonResponse({ error: "point_id required" }, 400);
-  }
-  const point = await getPointById(point_id);
-  if (!point) return jsonResponse({ error: "Point not found" }, 400);
   if (!url || typeof url !== "string" || url.trim() === "") {
     return jsonResponse({ error: "url required" }, 400);
   }
+  let resolvedPointId: number;
+  if (point_id != null && typeof point_id === "number") {
+    const point = await getPointById(point_id);
+    if (!point) return jsonResponse({ error: "Point not found" }, 400);
+    resolvedPointId = point_id;
+  } else {
+    const lat = body.taken_lat;
+    const lng = body.taken_lng;
+    if (typeof lat !== "number" || typeof lng !== "number") {
+      return jsonResponse(
+        { error: "point_id or both taken_lat and taken_lng required" },
+        400,
+      );
+    }
+    const created = await insertPointFromCoords(lat, lng, body.taken_at ?? undefined);
+    if (!created) return jsonResponse({ error: "Failed to create point" }, 500);
+    resolvedPointId = created.id;
+  }
   const type = inferMediaType(url);
   const row = await insertMedia({
-    pointId: point_id,
+    pointId: resolvedPointId,
     type,
     url: url.trim(),
     title: title.trim(),

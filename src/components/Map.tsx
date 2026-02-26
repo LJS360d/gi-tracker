@@ -27,7 +27,7 @@ const SEGMENT_STYLE: Record<string, L.PolylineOptions> = {
   boat: { color: "#38bdf8", weight: 3, dashArray: "12,6" },
 };
 
-const REVEAL_DURATION_MS = 2000;
+const REVEAL_DURATION_MS = 1500;
 
 type Props = {
   class?: string;
@@ -97,8 +97,10 @@ export default function Map(props: Props) {
   const [modalIndex, setModalIndex] = createSignal(0);
   const animate = props.animateTrack !== false;
 
-  const center: [number, number] = props.initialCenter ?? [48, 80];
-  const zoom = props.initialZoom ?? 3;
+  const isMobile = window.innerWidth <= 768;
+  const center: [number, number] = props.initialCenter ?? [40, 75];
+  const zoom = props.initialZoom ?? isMobile ? 1 : 3.5;
+  const padding: [number, number] = isMobile ? [10, 10] : [20, 20];
 
   onMount(() => {
     if (!container) return;
@@ -174,7 +176,7 @@ export default function Map(props: Props) {
               revealFrameId = requestAnimationFrame(tick);
             } else {
               addMediaMarkers();
-              map!.fitBounds(bounds, { padding: [20, 20], maxZoom: 10 });
+              map!.fitBounds(bounds, { padding, maxZoom: 10 });
             }
           };
           revealFrameId = requestAnimationFrame(tick);

@@ -117,6 +117,22 @@ export default async function seed() {
     },
   ];
 
+  const placeHints = [
+    { city: "Lucca", suburb: "Porta San Donato", address: "Via della Cavallerizza, Lucca, Tuscany, Italy" },
+    { city: "Belgrade", suburb: "Stari Grad", address: "Knez Mihailova, Belgrade, Serbia" },
+    { city: "Sofia", suburb: "Lozenets", address: "Vitosha Blvd, Sofia, Bulgaria" },
+    { city: "Istanbul", suburb: "Sultanahmet", address: "Sultanahmet, Istanbul, Turkey" },
+    { city: "Tbilisi", suburb: "Old Tbilisi", address: "Rustaveli Ave, Tbilisi, Georgia" },
+    { city: "Baku", suburb: "İçərişəhər", address: "Baku Old City, Azerbaijan" },
+    { city: "", suburb: "", address: "Chorsu Bazaar, Tashkent, Uzbekistan" },
+    { city: "Almaty", suburb: "Medeu", address: "Medeu District, Almaty, Kazakhstan" },
+    { city: "Beijing", suburb: "Dongcheng", address: "Forbidden City, Beijing, China" },
+    { city: "Shanghai", suburb: "Pudong", address: "Lujiazui, Shanghai, China" },
+    { city: "Seoul", suburb: "Jongno", address: "Gyeongbokgung, Seoul, South Korea" },
+    { city: "Tokyo", suburb: "Shibuya", address: "Shibuya Crossing, Tokyo, Japan" },
+  ];
+  let placeIndex = 0;
+
   const allPointsToInsert: any[] = [];
   let currentTime = now - 400 * hour;
   const serverTs = Date.now();
@@ -131,12 +147,19 @@ export default async function seed() {
         leg.from.lng === leg.to.lng
       )
         continue;
+      const hint = placeHints[placeIndex % placeHints.length];
+      placeIndex += 1;
       allPointsToInsert.push({
         lat: pts[i].lat,
         lng: pts[i].lng,
         deviceTs: Math.round(currentTime),
         serverTs,
         segmentType: leg.segment_type,
+        address: hint.address,
+        rawAddress: {
+          city: hint.city,
+          suburb: hint.suburb,
+        },
       });
       currentTime += stepMs;
     }
