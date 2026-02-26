@@ -1,6 +1,7 @@
 import { onMount, onCleanup } from "solid-js";
 import "easymde/dist/easymde.min.css";
-
+import "@/styles/editor.css";
+  
 interface Props {
   value: string;
   onChange: (val: string) => void;
