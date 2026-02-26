@@ -1,7 +1,6 @@
-import { createEffect, createSignal } from "solid-js";
 import { adminFetchOpts, apiHeaders } from "@/lib/admin-client";
-import pkg from 'lodash';
-const { debounce } = pkg;
+import debounce from "lodash/debounce";
+import { createSignal, onMount } from "solid-js";
 
 type Config = { delay_hours: number; sharing_enabled: boolean };
 type Status = { last_sync_server_ts: number | null };
@@ -24,7 +23,7 @@ export default function AdminConfig(props: Props) {
   const [pendingDelay, setPendingDelay] = createSignal<number | null>(null);
   const [pendingSharing, setPendingSharing] = createSignal<boolean | null>(null);
 
-  createEffect(() => {
+  onMount(() => {
     setError(null);
     fetch("/api/admin/config", { ...adminFetchOpts, headers: apiHeaders() })
       .then((r) => {

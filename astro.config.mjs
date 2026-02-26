@@ -67,6 +67,16 @@ export default defineConfig({
     }),
   ],
   vite: {
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes("node_modules/echarts")) return "echarts";
+            if (id.includes("node_modules/leaflet")) return "leaflet";
+          },
+        },
+      },
+    },
     server: {
       // @ts-ignore
       https: true,

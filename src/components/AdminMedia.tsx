@@ -1,4 +1,4 @@
-import { createEffect, Show } from "solid-js";
+import { createEffect, onMount, Show } from "solid-js";
 import MdiPlus from "virtual:icons/mdi/plus";
 import AdminMediaFilters from "./AdminMediaFilters";
 import AdminMediaList from "./AdminMediaList";
@@ -34,12 +34,8 @@ export default function AdminMedia(props: Props) {
       props.initialPoints,
     );
   }
-  createEffect(() => {
-    loadPoints();
-  });
-  createEffect(() => {
-    loadMedia();
-  });
+  onMount(() => loadPoints());
+  createEffect(() => loadMedia());
 
   return (
     <div class="w-full max-w-4xl text-neutral-300">

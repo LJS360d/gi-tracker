@@ -1,5 +1,6 @@
-import { createSignal, createResource, Show, onMount } from "solid-js";
-import BetChart from "./BetChart";
+import { createSignal, createResource, Show, onMount, lazy, Suspense, For } from "solid-js";
+
+const BetChart = lazy(() => import("./BetChart"));
 
 const DISPLAY_NAME_KEY = "bets_display_name";
 
@@ -10,6 +11,8 @@ function getStoredDisplayName(): string {
 
 type Question = { id: number; title: string; answerType: string; order: number };
 type CountItem = { value: string; count: number };
+
+const EMPTY_COUNTS: CountItem[] = [];
 
 async function fetchQuestions(): Promise<Question[]> {
   const r = await fetch("/api/bets/questions");
@@ -41,7 +44,7 @@ export default function BetsPage() {
     setDisplayName(name);
     try {
       localStorage.setItem(DISPLAY_NAME_KEY, name);
-    } catch (_) {}
+    } catch (_) { }
   }
 
   async function submit(questionId: number, value: string) {
@@ -94,15 +97,17 @@ export default function BetsPage() {
         />
       </div>
 
-      {questions().map((q) => (
-        <QuestionCard
-          question={q}
-          counts={countsByQ()[q.id] ?? []}
-          displayName={displayName()}
-          submitting={submitting() === q.id}
-          onSubmit={submit}
-        />
-      ))}
+      <For each={questions()}>
+        {(q) => (
+          <QuestionCard
+            question={q}
+            counts={countsByQ()[q.id] ?? EMPTY_COUNTS}
+            displayName={displayName()}
+            submitting={submitting() === q.id}
+            onSubmit={submit}
+          />
+        )}
+      </For>
     </div>
   );
 }
@@ -137,8 +142,10 @@ function QuestionCard(props: CardProps) {
       <div class="p-4 md:p-5">
         <h2 class="text-lg font-medium text-neutral-100">{props.question.title}</h2>
 
-        <div class="h-44 md:h-48 mt-3 rounded-lg bg-neutral-900/80 overflow-hidden">
-          <BetChart counts={props.counts} class="w-full h-full" />
+        <div class="h-44 md:h-48 mt-3 rounded-lg">
+          <Suspense fallback={<div class="w-full h-full flex items-center justify-center skeleton" />}>
+            <BetChart counts={props.counts} class="w-full h-full" />
+          </Suspense>
         </div>
 
         <form onSubmit={handleSubmit} class="mt-4 flex flex-col gap-3">

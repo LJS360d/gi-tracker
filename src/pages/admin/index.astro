@@ -18,5 +18,5 @@ if (checkAdmin(Astro.request)) {
 ---
 
 <AdminLayout>
-  <AdminConfig client:load initialConfig={initialConfig} initialStatus={initialStatus} />
+  <AdminConfig client:visible initialConfig={initialConfig} initialStatus={initialStatus} />
 </AdminLayout>

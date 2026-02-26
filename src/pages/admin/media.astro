@@ -23,5 +23,5 @@ if (checkAdmin(Astro.request)) {
 ---
 
 <AdminLayout>
-  <AdminMedia client:load initialMedia={initialMedia} initialTotal={initialTotal} initialPoints={initialPoints} />
+  <AdminMedia client:visible initialMedia={initialMedia} initialTotal={initialTotal} initialPoints={initialPoints} />
 </AdminLayout>

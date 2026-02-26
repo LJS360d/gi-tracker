@@ -1,7 +1,9 @@
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-import { createEffect, createResource, createSignal, onCleanup, onMount, Show } from "solid-js";
+import { createEffect, createMemo, createResource, createSignal, onCleanup, onMount, Show } from "solid-js";
 import MediaModal, { type MediaItem } from "@/components/MediaModal";
+
+type Leaflet = typeof import("leaflet");
+type LeafletMap = import("leaflet").Map;
+type PolylineOpts = { color?: string; weight?: number; dashArray?: string };
 
 const TILES_PROVIDER =
   "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
@@ -23,7 +25,7 @@ type MediaEntry = {
   description: string;
 };
 
-const SEGMENT_STYLE: Record<string, L.PolylineOptions> = {
+const SEGMENT_STYLE: Record<string, PolylineOpts> = {
   ground: { color: "#fff", weight: 3 },
   plane: { color: "#7dd3fc", weight: 3, dashArray: "8,8" },
   boat: { color: "#38bdf8", weight: 3, dashArray: "12,6" },
@@ -97,10 +99,11 @@ async function fetchTrack(): Promise<TrackApiResponse> {
 
 export default function Map(props: Props) {
   let container: HTMLDivElement | undefined;
-  let map: L.Map | null = null;
-  let polylines: L.Polyline[] = [];
+  let map: LeafletMap | null = null;
+  let polylines: import("leaflet").Polyline[] = [];
   let revealFrameId: number | null = null;
-  const mediaMarkers: L.Layer[] = [];
+  const mediaMarkers: import("leaflet").Layer[] = [];
+  const [leafletLib, setLeafletLib] = createSignal<Leaflet | null>(null);
   const [modalMediaList, setModalMediaList] = createSignal<MediaItem[] | null>(null);
   const [modalIndex, setModalIndex] = createSignal(0);
   const [mapReady, setMapReady] = createSignal(false);
@@ -114,12 +117,33 @@ export default function Map(props: Props) {
     props.initialTrack != null ? false : trackResource.loading;
   const animate = props.animateTrack !== false;
 
+  const points = () => trackData()?.points ?? [];
+  const media = () => trackData()?.media ?? [];
+  const latLngs = createMemo(() => points().map((p) => [p.lat, p.lng] as [number, number]));
+  const segments = createMemo(() => groupPointsBySegment(points()));
+  const clusters = createMemo(() => clusterMedia(media(), points()));
+
   const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
   const center: [number, number] = props.initialCenter ?? [40, 75];
   const zoom = props.initialZoom ?? isMobile ? 1 : 3.5;
   const padding: [number, number] = isMobile ? [10, 10] : [20, 20];
 
-  onMount(() => {
+  let onResize: (() => void) | null = null;
+  onCleanup(() => {
+    if (revealFrameId != null) cancelAnimationFrame(revealFrameId);
+    if (onResize) window.removeEventListener("resize", onResize);
+    for (const m of mediaMarkers) m.remove();
+    mediaMarkers.length = 0;
+    for (const pl of polylines) pl.remove();
+    polylines = [];
+    map?.remove();
+    map = null;
+  });
+
+  onMount(async () => {
+    const L = (await import("leaflet")).default;
+    await import("leaflet/dist/leaflet.css");
+    setLeafletLib(L);
     if (!container) return;
     map = L.map(container, {
       center,
@@ -134,34 +158,25 @@ export default function Map(props: Props) {
     }).addTo(map);
     setMapReady(true);
 
-    const onResize = () => map?.invalidateSize();
+    onResize = () => map?.invalidateSize();
     window.addEventListener("resize", onResize);
-    onCleanup(() => {
-      if (revealFrameId != null) cancelAnimationFrame(revealFrameId);
-      window.removeEventListener("resize", onResize);
-      for (const m of mediaMarkers) m.remove();
-      mediaMarkers.length = 0;
-      for (const pl of polylines) pl.remove();
-      polylines = [];
-      map?.remove();
-      map = null;
-    });
   });
 
   createEffect(() => {
-    if (!mapReady() || !map || trackLoading()) return;
+    const L = leafletLib();
+    if (!L || !mapReady() || !map || trackLoading()) return;
     const data = trackData();
     if (!data) return;
-    const points = data.points ?? [];
-    const media = data.media ?? [];
-    if (points.length === 0) return;
-    const latLngs: L.LatLngExpression[] = points.map((p) => [p.lat, p.lng]);
-    const bounds = L.latLngBounds(latLngs);
-    const segments = groupPointsBySegment(points);
+    const pts = points();
+    const med = media();
+    if (pts.length === 0) return;
+    const latLngsList = latLngs();
+    const segs = segments();
+    const bounds = L.latLngBounds(latLngsList);
 
     const addMediaMarkers = () => {
-      const clusters = clusterMedia(media, points);
-      for (const cluster of clusters) {
+      const clusts = clusters();
+      for (const cluster of clusts) {
         const count = cluster.entries.length;
         const items: MediaItem[] = cluster.entries.map((e) => ({
           type: e.type,
@@ -169,8 +184,8 @@ export default function Map(props: Props) {
           title: e.title,
           description: e.description,
         }));
-        const marker = L.marker([cluster.lat, cluster.lng], {
-          icon: L.divIcon({
+        const marker = L!.marker([cluster.lat, cluster.lng], {
+          icon: L!.divIcon({
             className: "",
             html: `<div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#fff;color:#333;border:2px solid #333;font-size:11px;font-weight:700;box-sizing:border-box;cursor:pointer;">${count}</div>`,
             iconSize: [28, 28],
@@ -188,24 +203,24 @@ export default function Map(props: Props) {
     const style = (type: string) =>
       SEGMENT_STYLE[type] ?? SEGMENT_STYLE.ground;
 
-    if (animate && points.length > 1) {
-      for (const seg of segments) {
-        const line = L.polyline([], style(seg.type)).addTo(map!);
+    if (animate && pts.length > 1) {
+      for (const seg of segs) {
+        const line = L!.polyline([], style(seg.type)).addTo(map!);
         polylines.push(line);
       }
       const start = performance.now();
-      const REVEAL_DURATION_MS = Math.min(5000, segments.length * 100);
+      const REVEAL_DURATION_MS = Math.min(5000, segs.length * 100);
       const tick = () => {
         const elapsed = performance.now() - start;
         const t = Math.min(1, elapsed / REVEAL_DURATION_MS);
-        const targetIndex = 1 + Math.floor(t * (points.length - 1));
-        segments.forEach((seg, i) => {
+        const targetIndex = 1 + Math.floor(t * (pts.length - 1));
+        segs.forEach((seg, i) => {
           const from = Math.min(seg.startIndex, targetIndex);
           const to = Math.min(seg.endIndex, targetIndex);
-          const slice = from < to ? latLngs.slice(from, to) : [];
+          const slice = from < to ? latLngsList.slice(from, to) : [];
           if (slice.length >= 2) polylines[i]?.setLatLngs(slice);
         });
-        segments.forEach((seg, i) => {
+        segs.forEach((seg, i) => {
           if (seg.type === "plane" || seg.type === "boat")
             polylines[i]?.bringToFront();
         });
@@ -218,10 +233,10 @@ export default function Map(props: Props) {
       };
       revealFrameId = requestAnimationFrame(tick);
     } else {
-      for (const seg of segments) {
-        const slice = latLngs.slice(seg.startIndex, seg.endIndex);
+      for (const seg of segs) {
+        const slice = latLngsList.slice(seg.startIndex, seg.endIndex);
         if (slice.length >= 2) {
-          const line = L.polyline(slice, style(seg.type)).addTo(map!);
+          const line = L!.polyline(slice, style(seg.type)).addTo(map!);
           polylines.push(line);
           if (seg.type === "plane" || seg.type === "boat")
             line.bringToFront();

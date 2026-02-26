@@ -1,3 +1,4 @@
+import { For } from "solid-js";
 import {
   cancelDelete,
   confirmDelete,
@@ -16,8 +17,8 @@ import MdiImage from "virtual:icons/mdi/image";
 import MdiVideo from "virtual:icons/mdi/video";
 import { formatTs, thumbUrl } from "./adminMediaUtils";
 
-export default function AdminMediaList() {
-  const PaginationButtons = () => (
+function PaginationButtons() {
+  return (
     <div class="flex gap-2 justify-between md:justify-start">
       <button
         type="button"
@@ -38,13 +39,16 @@ export default function AdminMediaList() {
         <MdiChevronRight class="w-5 h-5" />
       </button>
     </div>
-  )
+  );
+}
 
+export default function AdminMediaList() {
   return (
     <div class="pb-12 flex flex-col gap-4">
       <PaginationButtons />
       <ul class="space-y-3 list-none p-0 m-0 md:pb-0">
-        {mediaList().map((row) => (
+        <For each={mediaList()}>
+          {(row) => (
           <li class="border border-neutral-800 rounded-xl overflow-hidden bg-neutral-900/50">
             <div class="flex gap-3 p-3 md:p-4">
               <div
@@ -113,7 +117,8 @@ export default function AdminMediaList() {
               </div>
             </div>
           </li>
-        ))}
+          )}
+        </For>
       </ul>
       <PaginationButtons />
     </div>

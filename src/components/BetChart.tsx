@@ -1,5 +1,10 @@
-import * as echarts from "echarts";
-import { onCleanup, onMount, createEffect } from "solid-js";
+import { LineChart } from "echarts/charts";
+import { GridComponent, TitleComponent } from "echarts/components";
+import * as echarts from "echarts/core";
+import { CanvasRenderer } from "echarts/renderers";
+import { createEffect, onCleanup, onMount } from "solid-js";
+
+echarts.use([LineChart, GridComponent, TitleComponent, CanvasRenderer]);
 
 type Props = {
   counts: { value: string; count: number }[];
@@ -70,8 +75,10 @@ export default function BetChart(props: Props) {
     });
   });
 
-  return <div
-    ref={el}
-    class={props.class}
-    style={{ width: "100%", height: "100%", "min-height": "120px" }} />;
+  return (
+    <div
+      ref={el}
+      class={`w-full h-full min-h-[120px] ${props.class ?? ""}`.trim()}
+    />
+  );
 }
