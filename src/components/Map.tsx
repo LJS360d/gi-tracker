@@ -11,6 +11,8 @@ type TrackPoint = {
   lng: number;
   device_ts: number;
   segment_type?: string;
+  address?: string | null;
+  raw_address?: { city?: string; suburb?: string } | null;
 };
 
 type MediaEntry = {
@@ -37,6 +39,7 @@ type Props = {
 type Segment = { type: string; startIndex: number; endIndex: number };
 
 const CLUSTER_RADIUS_DEG = 0.001;
+const POINT_HOVER_THRESHOLD_PX = 8;
 
 function distDeg(
   a: { lat: number; lng: number },
@@ -155,8 +158,7 @@ export default function Map(props: Props) {
 
         if (animate && points.length > 1) {
           for (const seg of segments) {
-            const opts = style(seg.type);
-            const line = L.polyline([], opts).addTo(map!);
+            const line = L.polyline([], style(seg.type)).addTo(map!);
             polylines.push(line);
           }
           const start = performance.now();
@@ -169,7 +171,11 @@ export default function Map(props: Props) {
               const from = Math.min(seg.startIndex, targetIndex);
               const to = Math.min(seg.endIndex, targetIndex);
               const slice = from < to ? latLngs.slice(from, to) : [];
-              polylines[i]?.setLatLngs(slice);
+              if (slice.length >= 2) polylines[i]?.setLatLngs(slice);
+            });
+            segments.forEach((seg, i) => {
+              if (seg.type === "plane" || seg.type === "boat")
+                polylines[i]?.bringToFront();
             });
             if (t < 1) {
               revealFrameId = requestAnimationFrame(tick);
@@ -182,9 +188,11 @@ export default function Map(props: Props) {
         } else {
           for (const seg of segments) {
             const slice = latLngs.slice(seg.startIndex, seg.endIndex);
-            if (slice.length > 0) {
+            if (slice.length >= 2) {
               const line = L.polyline(slice, style(seg.type)).addTo(map!);
               polylines.push(line);
+              if (seg.type === "plane" || seg.type === "boat")
+                line.bringToFront();
             }
           }
           addMediaMarkers();

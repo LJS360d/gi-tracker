@@ -3,6 +3,8 @@ export type Point = {
   lng: number;
   device_ts: number;
   segment_type?: string;
+  address?: string | null;
+  raw_address?: { city?: string; suburb?: string } | null;
 };
 
 function perpendicularDistance(
@@ -48,11 +50,28 @@ export function douglasPeucker(points: Point[], epsilon: number): Point[] {
   return [...left.slice(0, -1), ...right];
 }
 
+function pointKey(p: Point): string {
+  return `${p.lat},${p.lng},${p.device_ts}`;
+}
+
 export function downsampleTrack(
   points: Point[],
-  maxPoints: number = 500,
+  maxPoints: number = 3000,
 ): Point[] {
   if (points.length <= maxPoints) return points;
+  const boundaryIndices = new Set<number>();
+  for (let i = 0; i < points.length - 1; i++) {
+    const a = points[i].segment_type ?? "ground";
+    const b = points[i + 1].segment_type ?? "ground";
+    if (a !== b) {
+      boundaryIndices.add(i);
+      boundaryIndices.add(i + 1);
+    }
+  }
+  if (points.length > 0) {
+    boundaryIndices.add(0);
+    boundaryIndices.add(points.length - 1);
+  }
   const epsilonStep = 0.0001;
   let epsilon = epsilonStep;
   let result = douglasPeucker(points, epsilon);
@@ -60,5 +79,14 @@ export function downsampleTrack(
     epsilon += epsilonStep;
     result = douglasPeucker(points, epsilon);
   }
+  const resultSet = new Set(result.map(pointKey));
+  for (const i of boundaryIndices) {
+    const p = points[i];
+    if (!resultSet.has(pointKey(p))) {
+      result.push(p);
+      resultSet.add(pointKey(p));
+    }
+  }
+  result.sort((a, b) => a.device_ts - b.device_ts);
   return result;
 }
