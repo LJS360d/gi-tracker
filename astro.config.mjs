@@ -5,14 +5,17 @@ import db from "@astrojs/db";
 import tailwindcss from "@tailwindcss/vite";
 import AstroPWA from "@vite-pwa/astro";
 import bun from "@wyattjoh/astro-bun-adapter";
+import vercel from "@astrojs/vercel/serverless";
 import basicSsl from "@vitejs/plugin-basic-ssl";
 import Icons from "unplugin-icons/vite";
 import path from "path";
 
+const isVercel = process.env.VERCEL === "1";
+
 // https://astro.build/config
 export default defineConfig({
   output: "server",
-  adapter: bun(),
+  adapter: isVercel ? vercel({}) : bun(),
   integrations: [
     solidJs(),
     db(),
