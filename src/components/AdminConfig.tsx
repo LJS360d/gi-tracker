@@ -12,9 +12,14 @@ function formatLastSync(ts: number | null): string {
   return d.toLocaleString("it-IT", { dateStyle: "short", timeStyle: "short" });
 }
 
-export default function AdminConfig() {
-  const [config, setConfig] = createSignal<Config | null>(null);
-  const [status, setStatus] = createSignal<Status | null>(null);
+type Props = {
+  initialConfig?: Config | null;
+  initialStatus?: Status | null;
+};
+
+export default function AdminConfig(props: Props) {
+  const [config, setConfig] = createSignal<Config | null>(props.initialConfig ?? null);
+  const [status, setStatus] = createSignal<Status | null>(props.initialStatus ?? null);
   const [error, setError] = createSignal<string | null>(null);
   const [pendingDelay, setPendingDelay] = createSignal<number | null>(null);
   const [pendingSharing, setPendingSharing] = createSignal<boolean | null>(null);

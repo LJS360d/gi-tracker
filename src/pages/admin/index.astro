@@ -1,8 +1,22 @@
 ---
 import AdminLayout from "@/layouts/admin/AdminLayout.astro";
 import AdminConfig from "@/components/AdminConfig";
+import { checkAdmin } from "@/lib/auth";
+import { getDelayHours, isSharingEnabled, getLastSyncServerTs } from "@/lib/db";
+
+let initialConfig: { delay_hours: number; sharing_enabled: boolean } | null = null;
+let initialStatus: { last_sync_server_ts: number | null } | null = null;
+if (checkAdmin(Astro.request)) {
+  const [delayHours, sharingEnabled, lastSync] = await Promise.all([
+    getDelayHours(),
+    isSharingEnabled(),
+    getLastSyncServerTs(),
+  ]);
+  initialConfig = { delay_hours: delayHours, sharing_enabled: sharingEnabled };
+  initialStatus = { last_sync_server_ts: lastSync };
+}
 ---
 
 <AdminLayout>
-  <AdminConfig client:load />
+  <AdminConfig client:load initialConfig={initialConfig} initialStatus={initialStatus} />
 </AdminLayout>

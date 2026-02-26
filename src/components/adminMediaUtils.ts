@@ -31,6 +31,38 @@ export type MediaRow = {
 };
 export type SortCol = "id" | "created_at" | "taken_at" | "title";
 
+export function mediaRowFromDb(r: {
+  id: number;
+  pointId: number;
+  point_device_ts?: number | null;
+  point_lat?: number | null;
+  point_lng?: number | null;
+  type: string;
+  url: string;
+  title: string;
+  description: string;
+  createdAt: number;
+  takenAt?: number | null;
+  takenLat?: number | null;
+  takenLng?: number | null;
+}): MediaRow {
+  return {
+    id: r.id,
+    point_id: r.pointId,
+    point_device_ts: r.point_device_ts ?? null,
+    point_lat: r.point_lat ?? null,
+    point_lng: r.point_lng ?? null,
+    type: r.type,
+    url: r.url,
+    title: r.title,
+    description: r.description,
+    created_at: r.createdAt,
+    taken_at: r.takenAt ?? null,
+    taken_lat: r.takenLat ?? null,
+    taken_lng: r.takenLng ?? null,
+  };
+}
+
 function str(v: unknown): string {
   if (v == null) return "";
   if (typeof v === "string") return v.trim();

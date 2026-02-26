@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { mediaRowFromDb } from "@/components/adminMediaUtils";
 import { checkAdmin, jsonResponse, unauthorized } from "@/lib/auth";
 import {
   countMedia,
@@ -19,38 +20,6 @@ function inferMediaType(url: string): "image" | "video" {
   return "image";
 }
 
-function toSnakeRow(r: {
-  id: number;
-  pointId: number;
-  point_device_ts?: number | null;
-  point_lat?: number | null;
-  point_lng?: number | null;
-  type: string;
-  url: string;
-  title: string;
-  description: string;
-  createdAt: number;
-  takenAt?: number | null;
-  takenLat?: number | null;
-  takenLng?: number | null;
-}) {
-  return {
-    id: r.id,
-    point_id: r.pointId,
-    point_device_ts: r.point_device_ts ?? null,
-    point_lat: r.point_lat ?? null,
-    point_lng: r.point_lng ?? null,
-    type: r.type,
-    url: r.url,
-    title: r.title,
-    description: r.description,
-    created_at: r.createdAt,
-    taken_at: r.takenAt ?? null,
-    taken_lat: r.takenLat ?? null,
-    taken_lng: r.takenLng ?? null,
-  };
-}
-
 export const GET: APIRoute = async ({ request }) => {
   if (!checkAdmin(request)) return unauthorized();
   const url = new URL(request.url);
@@ -69,7 +38,7 @@ export const GET: APIRoute = async ({ request }) => {
   }
   const total = await countMedia({ point_id: filters.point_id });
   const rows = await listMediaWithPoints(filters);
-  const list = rows.map(toSnakeRow);
+  const list = rows.map(mediaRowFromDb);
   const res = jsonResponse(list);
   res.headers.set("X-Total-Count", String(total));
   return res;

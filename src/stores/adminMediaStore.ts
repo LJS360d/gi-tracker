@@ -301,6 +301,17 @@ export function setPageToZero() {
   setPage(0);
 }
 
+export function hydrateFromInitial(
+  media: MediaRow[],
+  totalCount: number,
+  pointOptions: PointOption[],
+) {
+  setMediaList(media);
+  setTotal(totalCount);
+  setPoints(pointOptions);
+  setError(null);
+}
+
 export function totalPages() {
   return Math.max(1, Math.ceil(total() / pageSize()));
 }

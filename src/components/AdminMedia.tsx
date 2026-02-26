@@ -3,16 +3,37 @@ import MdiPlus from "virtual:icons/mdi/plus";
 import AdminMediaFilters from "./AdminMediaFilters";
 import AdminMediaList from "./AdminMediaList";
 import AdminMediaModal from "./AdminMediaModal";
+import type { MediaRow, PointOption } from "@/components/adminMediaUtils";
 import {
   error,
   showModal,
   mediaList,
+  points,
   openCreate,
   loadMedia,
   loadPoints,
+  hydrateFromInitial,
 } from "@/stores/adminMediaStore";
 
-export default function AdminMedia() {
+type Props = {
+  initialMedia?: MediaRow[];
+  initialTotal?: number;
+  initialPoints?: PointOption[];
+};
+
+export default function AdminMedia(props: Props) {
+  if (
+    props.initialMedia &&
+    props.initialPoints &&
+    mediaList().length === 0 &&
+    points().length === 0
+  ) {
+    hydrateFromInitial(
+      props.initialMedia,
+      props.initialTotal ?? 0,
+      props.initialPoints,
+    );
+  }
   createEffect(() => {
     loadPoints();
   });

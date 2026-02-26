@@ -1,8 +1,27 @@
 ---
 import AdminLayout from "@/layouts/admin/AdminLayout.astro";
 import AdminMedia from "@/components/AdminMedia";
+import { mediaRowFromDb, type MediaRow, type PointOption } from "@/components/adminMediaUtils";
+import { checkAdmin } from "@/lib/auth";
+import { getDownsampledPointOptions } from "@/lib/admin-data";
+import { countMedia, listMediaWithPoints } from "@/lib/db";
+
+let initialMedia: MediaRow[] = [];
+let initialTotal = 0;
+let initialPoints: PointOption[] = [];
+if (checkAdmin(Astro.request)) {
+  const filters = { limit: 25, offset: 0, sort: "created_at" as const, order: "desc" as const };
+  const [total, rows, points] = await Promise.all([
+    countMedia({}),
+    listMediaWithPoints(filters),
+    getDownsampledPointOptions(),
+  ]);
+  initialMedia = rows.map(mediaRowFromDb);
+  initialTotal = total;
+  initialPoints = points;
+}
 ---
 
 <AdminLayout>
-  <AdminMedia client:load />
+  <AdminMedia client:load initialMedia={initialMedia} initialTotal={initialTotal} initialPoints={initialPoints} />
 </AdminLayout>
