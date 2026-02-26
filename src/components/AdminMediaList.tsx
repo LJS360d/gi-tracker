@@ -1,44 +1,48 @@
-import MdiImage from "virtual:icons/mdi/image";
-import MdiVideo from "virtual:icons/mdi/video";
-import { formatTs, thumbUrl } from "./adminMediaUtils";
 import {
-  mediaList,
-  deleteConfirmId,
-  pointLabel,
-  openEdit,
-  confirmDelete,
   cancelDelete,
+  confirmDelete,
+  deleteConfirmId,
   doDelete,
+  mediaList,
+  openEdit,
   page,
+  pointLabel,
   setPage,
   totalPages,
 } from "@/stores/adminMediaStore";
 import MdiChevronLeft from "virtual:icons/mdi/chevron-left";
 import MdiChevronRight from "virtual:icons/mdi/chevron-right";
+import MdiImage from "virtual:icons/mdi/image";
+import MdiVideo from "virtual:icons/mdi/video";
+import { formatTs, thumbUrl } from "./adminMediaUtils";
 
 export default function AdminMediaList() {
+  const PaginationButtons = () => (
+    <div class="flex gap-2 justify-between md:justify-start">
+      <button
+        type="button"
+        disabled={page() <= 0}
+        onClick={() => setPage((p) => Math.max(0, p - 1))}
+        class="min-h-[44px] px-4 py-2.5 rounded-xl bg-neutral-700 text-neutral-200 text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 touch-manipulation active:bg-neutral-600 md:hover:bg-neutral-600"
+      >
+        <MdiChevronLeft class="w-5 h-5" />
+        Precedente
+      </button>
+      <button
+        type="button"
+        disabled={page() >= totalPages() - 1}
+        onClick={() => setPage((p) => Math.min(totalPages() - 1, p + 1))}
+        class="min-h-[44px] px-4 py-2.5 rounded-xl bg-neutral-700 text-neutral-200 text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 touch-manipulation active:bg-neutral-600 md:hover:bg-neutral-600"
+      >
+        Successivo
+        <MdiChevronRight class="w-5 h-5" />
+      </button>
+    </div>
+  )
+
   return (
     <div class="pb-12 flex flex-col gap-4">
-      <div class="flex gap-2 justify-between md:justify-start">
-        <button
-          type="button"
-          disabled={page() <= 0}
-          onClick={() => setPage((p) => Math.max(0, p - 1))}
-          class="min-h-[44px] px-4 py-2.5 rounded-xl bg-neutral-700 text-neutral-200 text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 touch-manipulation active:bg-neutral-600 md:hover:bg-neutral-600"
-        >
-          <MdiChevronLeft class="w-5 h-5" />
-          Precedente
-        </button>
-        <button
-          type="button"
-          disabled={page() >= totalPages() - 1}
-          onClick={() => setPage((p) => Math.min(totalPages() - 1, p + 1))}
-          class="min-h-[44px] px-4 py-2.5 rounded-xl bg-neutral-700 text-neutral-200 text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 touch-manipulation active:bg-neutral-600 md:hover:bg-neutral-600"
-        >
-          Successivo
-          <MdiChevronRight class="w-5 h-5" />
-        </button>
-      </div>
+      <PaginationButtons />
       <ul class="space-y-3 list-none p-0 m-0 md:pb-0">
         {mediaList().map((row) => (
           <li class="border border-neutral-800 rounded-xl overflow-hidden bg-neutral-900/50">
@@ -111,26 +115,7 @@ export default function AdminMediaList() {
           </li>
         ))}
       </ul>
-      <div class="flex gap-2 justify-between md:justify-start">
-        <button
-          type="button"
-          disabled={page() <= 0}
-          onClick={() => setPage((p) => Math.max(0, p - 1))}
-          class="min-h-[44px] px-4 py-2.5 rounded-xl bg-neutral-700 text-neutral-200 text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 touch-manipulation active:bg-neutral-600 md:hover:bg-neutral-600"
-        >
-          <MdiChevronLeft class="w-5 h-5" />
-          Precedente
-        </button>
-        <button
-          type="button"
-          disabled={page() >= totalPages() - 1}
-          onClick={() => setPage((p) => Math.min(totalPages() - 1, p + 1))}
-          class="min-h-[44px] px-4 py-2.5 rounded-xl bg-neutral-700 text-neutral-200 text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 touch-manipulation active:bg-neutral-600 md:hover:bg-neutral-600"
-        >
-          Successivo
-          <MdiChevronRight class="w-5 h-5" />
-        </button>
-      </div>
+      <PaginationButtons />
     </div>
 
   );

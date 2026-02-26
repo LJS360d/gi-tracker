@@ -54,10 +54,13 @@ export default function AdminMedia() {
       </Show>
 
       <AdminMediaFilters />
-      <AdminMediaList />
-      {mediaList().length === 0 && (
-        <p class="mt-6 text-neutral-500 text-base">Nessun media ancora.</p>
-      )}
+      <Show
+        when={mediaList().length > 0}
+        fallback={
+          <p class="mt-6 text-neutral-500 text-base">Nessun media pubblicato</p>
+        }>
+        <AdminMediaList />
+      </Show>
     </div>
   );
 }
