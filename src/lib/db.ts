@@ -1,15 +1,15 @@
 import {
-  db,
+  asc,
+  betAnswers,
+  betQuestions,
   config,
+  db,
+  desc,
+  eq,
+  inArray,
+  lt,
   media,
   points,
-  betQuestions,
-  betAnswers,
-  eq,
-  lt,
-  desc,
-  asc,
-  inArray,
   sql,
 } from "astro:db";
 
@@ -319,7 +319,7 @@ export async function listBetQuestions() {
   return await db
     .select()
     .from(betQuestions)
-    .orderBy(asc(betQuestions.order), asc(betQuestions.id));
+    .orderBy(asc(betQuestions.id));
 }
 
 export async function getBetAnswerCountsByQuestion(questionId: number): Promise<{ value: string; count: number }[]> {
@@ -357,10 +357,9 @@ async function getMaxBetQuestionId(): Promise<number> {
 
 export async function insertBetQuestion(payload: { title: string; answerType: string; order?: number }) {
   const id = (await getMaxBetQuestionId()) + 1;
-  const order = payload.order ?? id;
   const [inserted] = await db
     .insert(betQuestions)
-    .values({ id, title: payload.title, answerType: payload.answerType, order })
+    .values({ id, title: payload.title, answerType: payload.answerType })
     .returning();
   return inserted;
 }

@@ -1,4 +1,5 @@
-import { betQuestions, config, db, media, points } from "astro:db";
+import { config, db, media, points } from "astro:db";
+import seedQuestions from "./seed_questions";
 
 export default async function seed() {
   const now = Date.now();
@@ -353,23 +354,6 @@ export default async function seed() {
   }
 
   await db.insert(media).values(mediaToInsert);
-
-  const questionsToInsert = [
-    { id: 1, title: "Dove fora la prima volta?", answerType: "text", order: 1 },
-    { id: 5, title: "Dove prende il cagotto la prima volta?", answerType: "text", order: 5 },
-    { id: 3, title: "Se e dove l'arrestano?", answerType: "text", order: 3 },
-    { id: 2, title: "Dove ferma il viaggio?", answerType: "text", order: 2 },
-    { id: 4, title: "Animale più grosso che incontra", answerType: "text", order: 4 },
-    { id: 6, title: "Dove accetterà sostanze stupefacenti per la prima volta?", answerType: "text", order: 6 },
-    { id: 7, title: "Dove gli rubano la bicicletta?", answerType: "text", order: 7 },
-    { id: 8, title: "Torna?", answerType: "boolean", order: 8 },
-    { id: 9, title: "Quanto dura il viaggio? (numero di giorni)", answerType: "number", order: 9 },
-    { id: 10, title: "Primo posto di blocco / stato che lo rimbalza", answerType: "text", order: 10 },
-    { id: 11, title: "Il primo telegiornale che ne parla", answerType: "text", order: 11 },
-  ];
-  await db.insert(betQuestions).values(questionsToInsert);
-
-  console.log(
-    `Seed complete: ${allPointsToInsert.length} points, ${mediaToInsert.length} media, ${questionsToInsert.length} bet questions.`,
-  );
+  await seedQuestions();
+  console.log(`Seed complete: ${allPointsToInsert.length} points, ${mediaToInsert.length} media`);
 }

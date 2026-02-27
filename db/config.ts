@@ -48,7 +48,6 @@ const betQuestions = defineTable({
     id: column.number({ primaryKey: true }),
     title: column.text(),
     answerType: column.text(), // "text" | "number" | "boolean"
-    order: column.number({ default: 0 }),
   },
 });
 
