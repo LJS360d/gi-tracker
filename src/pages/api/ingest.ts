@@ -1,7 +1,24 @@
 import type { APIRoute } from "astro";
 import { insertPointFromIngest, type IngestPayload } from "@/lib/db";
 
+const INGEST_HEADER = "X-Ingest-Token";
+
 export const POST: APIRoute = async ({ request }) => {
+  const expected = process.env.INGEST_TOKEN;
+  if (!expected) {
+    return new Response(JSON.stringify({ error: "Ingest not configured" }), {
+      status: 503,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+  const token = request.headers.get(INGEST_HEADER);
+  if (token !== expected) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   if (request.headers.get("Content-Type")?.toLowerCase().includes("application/json") === false) {
     return new Response(JSON.stringify({ error: "Content-Type must be application/json" }), {
       status: 400,
