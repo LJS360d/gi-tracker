@@ -364,6 +364,8 @@ export default async function seed() {
     { id: 7, title: "Dove gli rubano la bicicletta?", answerType: "text", order: 7 },
     { id: 8, title: "Torna?", answerType: "boolean", order: 8 },
     { id: 9, title: "Quanto dura il viaggio? (numero di giorni)", answerType: "number", order: 9 },
+    { id: 10, title: "Primo posto di blocco / stato che lo rimbalza", answerType: "text", order: 10 },
+    { id: 11, title: "Il primo telegiornale che ne parla", answerType: "text", order: 11 },
   ];
   await db.insert(betQuestions).values(questionsToInsert);
 
