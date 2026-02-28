@@ -1,0 +1,18 @@
+services:
+  gi-tracker:
+    build: .
+    ports:
+      - "9999:3000"
+    environment:
+      - ADMIN_ACCESS_TOKEN=${ADMIN_ACCESS_TOKEN}
+      - UPLOAD_DIR=/app/public/media
+      - INGEST_TOKEN=${INGEST_TOKEN}
+      - ASTRO_DATABASE_FILE=/app/data/gi-tracker.db
+    volumes:
+      - media:/app/public/media
+      - data:/app/data
+    restart: unless-stopped
+
+volumes:
+  media:
+  data:
