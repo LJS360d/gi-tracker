@@ -9,6 +9,8 @@ RUN bun install --frozen-lockfile
 
 COPY . .
 
+ARG SITE_URL
+ENV SITE_URL=${SITE_URL}
 RUN mkdir -p /app/data
 ENV ASTRO_DATABASE_FILE=/app/data/gi-tracker.db
 RUN bunx astro build

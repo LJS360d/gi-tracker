@@ -1,6 +1,9 @@
 services:
   gi-tracker:
-    build: .
+    build:
+      context: .
+      args:
+        - SITE_URL=${SITE_URL}
     ports:
       - "9999:3000"
     environment:
