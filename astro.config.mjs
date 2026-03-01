@@ -11,9 +11,10 @@ import Icons from "unplugin-icons/vite";
 import path from "path";
 
 const isVercel = process.env.VERCEL === "1";
+const isBehindProxy = !!process.env.BEHIND_PROXY;
 const site = isVercel && process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
-  : process.env.SITE_URL || undefined;
+  : undefined;
 
 const adapter = () => {
   if (isVercel) {
@@ -28,7 +29,7 @@ export default defineConfig({
   adapter: adapter(),
   site,
   security: {
-    checkOrigin: !isVercel,
+    checkOrigin: !isVercel && !isBehindProxy,
   },
   integrations: [
     solidJs(),

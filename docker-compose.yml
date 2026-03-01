@@ -1,16 +1,13 @@
 services:
   gi-tracker:
-    build:
-      context: .
-      args:
-        - SITE_URL=${SITE_URL}
+    build: .
     ports:
       - "9999:3000"
     environment:
       - ADMIN_ACCESS_TOKEN=${ADMIN_ACCESS_TOKEN}
       - UPLOAD_DIR=/app/public/media
       - INGEST_TOKEN=${INGEST_TOKEN}
-      - SITE_URL=${SITE_URL}
+      - BEHIND_PROXY=${BEHIND_PROXY}
       - ASTRO_DATABASE_FILE=/app/data/gi-tracker.db
     volumes:
       - media:/app/public/media
