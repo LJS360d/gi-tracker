@@ -7,6 +7,7 @@ services:
       - ADMIN_ACCESS_TOKEN=${ADMIN_ACCESS_TOKEN}
       - UPLOAD_DIR=/app/public/media
       - INGEST_TOKEN=${INGEST_TOKEN}
+      - SITE_URL=${SITE_URL}
       - ASTRO_DATABASE_FILE=/app/data/gi-tracker.db
     volumes:
       - media:/app/public/media

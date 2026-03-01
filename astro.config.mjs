@@ -13,7 +13,7 @@ import path from "path";
 const isVercel = process.env.VERCEL === "1";
 const site = isVercel && process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
-  : undefined;
+  : process.env.SITE_URL || undefined;
 
 const adapter = () => {
   if (isVercel) {
