@@ -11,6 +11,12 @@ services:
     volumes:
       - media:/app/public/media
       - data:/app/data
+    healthcheck:
+      test: ["CMD", "bun", "-e", "fetch('http://localhost:3000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     restart: unless-stopped
 
 volumes:

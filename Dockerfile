@@ -19,6 +19,7 @@ RUN sqlite3 /app/data/gi-tracker.db ".schema" > /tmp/schema.sql \
 
 # --- Runtime stage ---
 FROM oven/bun:1-slim
+RUN apt-get update && apt-get install -y --no-install-recommends tini && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
 COPY --from=build /app/dist ./dist
@@ -39,5 +40,5 @@ ENV PORT=3000
 ENV ASTRO_DATABASE_FILE=/app/data/gi-tracker.db
 EXPOSE 3000
 
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
+ENTRYPOINT ["tini", "--", "/app/docker-entrypoint.sh"]
 CMD ["bun", "./dist/server/entry.mjs"]

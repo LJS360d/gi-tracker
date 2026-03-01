@@ -10,7 +10,4 @@ if [ ! -f "$DB_FILE" ]; then
   bunx astro db execute db/seed_prod.ts
 fi
 
-# Symlink uploaded media into the static asset directory so the server can serve them
-ln -sfn /app/public/media /app/dist/client/media
-
 exec "$@"
