@@ -4,6 +4,7 @@ import AdminBackLink from "@/layouts/admin/AdminBackLink.astro";
 import AdminNavLink from "@/layouts/admin/AdminNavLink.astro";
 import MdiCog from "virtual:icons/mdi/cog";
 import MdiImage from "virtual:icons/mdi/image";
+import MdiMapMarker from "virtual:icons/mdi/map-marker";
 import { isAdminCookieValid } from "@/lib/auth";
 
 const pathname = Astro.url.pathname;
@@ -15,6 +16,7 @@ const loginError = Astro.url.searchParams.get("error") === "invalid";
 const PAGES = [
   { path: "/admin", label: "Config", icon: MdiCog },
   { path: "/admin/media", label: "Media", icon: MdiImage },
+  { path: "/admin/points", label: "Points", icon: MdiMapMarker },
 ];
 
 function isActive(path: string): boolean {

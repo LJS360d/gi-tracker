@@ -1,0 +1,25 @@
+---
+import AdminLayout from "@/layouts/admin/AdminLayout.astro";
+import AdminPoints from "@/components/AdminPoints";
+import { checkAdmin } from "@/lib/auth";
+import { getAdminPointsSSR } from "@/lib/admin-data";
+
+let initialPoints: import("@/lib/admin-data").AdminPointRowApi[] = [];
+let initialTotal = 0;
+let initialTrackPath: import("@/lib/admin-data").AdminTrackPoint[] = [];
+if (checkAdmin(Astro.request)) {
+  const data = await getAdminPointsSSR({ limit: 100, offset: 0, order: "asc" });
+  initialPoints = data.points;
+  initialTotal = data.total;
+  initialTrackPath = data.trackPath;
+}
+---
+
+<AdminLayout>
+  <AdminPoints
+    client:visible
+    initialPoints={initialPoints}
+    initialTotal={initialTotal}
+    initialTrackPath={initialTrackPath}
+  />
+</AdminLayout>

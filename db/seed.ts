@@ -3,7 +3,6 @@ import seedQuestions from "./seed_questions";
 
 export default async function seed() {
   const now = Date.now();
-  const hour = 60 * 60 * 1000;
 
   type Waypoint = { lat: number; lng: number };
   type SegmentType = "ground" | "plane" | "boat";
@@ -257,12 +256,14 @@ export default async function seed() {
 
   let placeIndex = 0;
   const allPointsToInsert: any[] = [];
-  let currentTime = now - 500 * hour;
-  const serverTs = Date.now();
+  const nowSec = Math.floor(now / 1000);
+  const hourSec = 60 * 60;
+  let currentTime = nowSec - 500 * hourSec;
+  const serverTs = Math.floor(Date.now() / 1000);
 
   for (const leg of legs) {
     const pts = interpolate(leg.from, leg.to, leg.steps);
-    const stepMs = (2 * hour) / Math.max(1, pts.length - 1);
+    const stepSec = (2 * hourSec) / Math.max(1, pts.length - 1);
     for (let i = 0; i < pts.length; i++) {
       if (
         i === pts.length - 1 &&
@@ -284,7 +285,7 @@ export default async function seed() {
           suburb: hint.suburb,
         },
       });
-      currentTime += stepMs;
+      currentTime += stepSec;
     }
   }
 

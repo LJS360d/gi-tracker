@@ -119,8 +119,9 @@ export async function getPublicTrackData(): Promise<PublicTrackData> {
     return { points: [], media: [], delay_hours: delayHours };
   }
 
-  const cutoff = Date.now() - delayHours * 60 * 60 * 1000;
-  const rows = await listPointsBeforeCutoff(cutoff);
+  const cutoffMs = Date.now() - delayHours * 60 * 60 * 1000;
+  const cutoffSec = Math.floor(cutoffMs / 1000);
+  const rows = await listPointsBeforeCutoff(cutoffSec);
   const trackPoints: Point[] = rows.map((r) => ({
     lat: r.lat,
     lng: r.lng,

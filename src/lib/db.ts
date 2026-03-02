@@ -1,4 +1,5 @@
 import {
+  and,
   asc,
   betAnswers,
   betQuestions,
@@ -7,6 +8,7 @@ import {
   desc,
   eq,
   inArray,
+  like,
   lt,
   media,
   points,
@@ -197,6 +199,7 @@ export async function listAllPointsForDownsampling(limit = 10000) {
       deviceTs: points.deviceTs,
       lat: points.lat,
       lng: points.lng,
+      segmentType: points.segmentType,
       address: points.address,
       rawAddress: points.rawAddress,
     })
@@ -205,9 +208,95 @@ export async function listAllPointsForDownsampling(limit = 10000) {
     .limit(limit);
 }
 
+export type ListPointsFilters = {
+  onlyIds?: number[];
+  search?: string;
+};
+
+export async function countPoints(filters?: ListPointsFilters): Promise<number> {
+  let query = db
+    .select({ count: sql<number>`count(*)` })
+    .from(points)
+    .$dynamic();
+  const conditions: ReturnType<typeof eq>[] = [];
+  if (filters?.onlyIds != null && filters.onlyIds.length > 0) {
+    conditions.push(inArray(points.id, filters.onlyIds));
+  }
+  if (filters?.search != null && filters.search.trim() !== "") {
+    conditions.push(like(points.address, `%${filters.search.trim()}%`));
+  }
+  if (conditions.length > 0) {
+    query = query.where(and(...conditions));
+  }
+  const [row] = await query;
+  return Number(row?.count ?? 0);
+}
+
+export async function listPointsPage(opts: {
+  limit: number;
+  offset: number;
+  order: "asc" | "desc";
+  onlyIds?: number[];
+  search?: string;
+}) {
+  const orderByCol = opts.order === "asc" ? asc(points.deviceTs) : desc(points.deviceTs);
+  const conditions: ReturnType<typeof eq>[] = [];
+  if (opts.onlyIds != null && opts.onlyIds.length > 0) {
+    conditions.push(inArray(points.id, opts.onlyIds));
+  }
+  if (opts.search != null && opts.search.trim() !== "") {
+    conditions.push(like(points.address, `%${opts.search.trim()}%`));
+  }
+  let query = db.select().from(points).$dynamic();
+  if (conditions.length > 0) {
+    query = query.where(and(...conditions));
+  }
+  return await query.orderBy(orderByCol).limit(opts.limit).offset(opts.offset);
+}
+
+export async function getPointIdsWithMedia(): Promise<number[]> {
+  const rows = await db
+    .select({ pointId: media.pointId })
+    .from(media);
+  return [...new Set(rows.map((r) => r.pointId))];
+}
+
 export async function getPointById(id: number) {
   const [row] = await db.select().from(points).where(eq(points.id, id));
   return row ?? null;
+}
+
+export async function updatePoint(
+  id: number,
+  updates: {
+    lat?: number;
+    lng?: number;
+    deviceTs?: number;
+    segmentType?: string;
+    address?: string | null;
+    rawAddress?: unknown;
+  },
+) {
+  const v: Record<string, unknown> = {};
+  if (updates.lat !== undefined) v.lat = updates.lat;
+  if (updates.lng !== undefined) v.lng = updates.lng;
+  if (updates.deviceTs !== undefined) v.deviceTs = updates.deviceTs;
+  if (updates.segmentType !== undefined) v.segmentType = updates.segmentType;
+  if (updates.address !== undefined) v.address = updates.address;
+  if (updates.rawAddress !== undefined) v.rawAddress = updates.rawAddress;
+  if (Object.keys(v).length === 0) return getPointById(id);
+  const [row] = await db
+    .update(points)
+    .set(v as Record<string, string | number | null>)
+    .where(eq(points.id, id))
+    .returning();
+  return row ?? null;
+}
+
+export async function deletePoint(id: number): Promise<boolean> {
+  await db.delete(media).where(eq(media.pointId, id));
+  const result = await db.delete(points).where(eq(points.id, id));
+  return !!result.rowsAffected;
 }
 
 export async function insertPointFromCoords(
