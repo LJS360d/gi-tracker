@@ -1,10 +1,9 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
+
 @plugin "daisyui" {
-    themes:
-        cupcake --default,
-        night --prefersdark,
-        night;
+    themes: light --preferslight,
+        povich --prefersdark;
     root: ":root";
     /* include: ; */
     /* exclude: rootscrollgutter; */
@@ -12,23 +11,41 @@
     logs: false;
 }
 
-:root {
-    --background: #0d0d0d;
-    --foreground: #e5e5e5;
+@plugin "daisyui/theme" {
+    name: "povich";
+    default: false;
+    prefersdark: true;
+    color-scheme: "dark";
+    --color-base-100: oklch(14% 0.004 49.25);
+    --color-base-200: oklch(21% 0.006 56.043);
+    --color-base-300: oklch(26% 0.007 34.298);
+    --color-base-content: oklch(97% 0.001 106.424);
+    --color-primary: oklch(70% 0.14 182.503);
+    --color-primary-content: oklch(98% 0.014 180.72);
+    --color-secondary: oklch(65% 0.241 354.308);
+    --color-secondary-content: oklch(97% 0.014 343.198);
+    --color-accent: oklch(76% 0.233 130.85);
+    --color-accent-content: oklch(98% 0.031 120.757);
+    --color-neutral: oklch(44% 0.011 73.639);
+    --color-neutral-content: oklch(98% 0.001 106.423);
+    --color-info: oklch(54% 0.245 262.881);
+    --color-info-content: oklch(97% 0.014 254.604);
+    --color-success: oklch(59% 0.145 163.225);
+    --color-success-content: oklch(97% 0.021 166.113);
+    --color-warning: oklch(68% 0.162 75.834);
+    --color-warning-content: oklch(98% 0.026 102.212);
+    --color-error: oklch(57% 0.245 27.325);
+    --color-error-content: oklch(97% 0.013 17.38);
+    --radius-selector: 0.25rem;
+    --radius-field: 0.25rem;
+    --radius-box: 0.25rem;
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+    --border: 2px;
+    --depth: 2;
+    --noise: 100;
+  }
 
-    --editor-bg: #262626;
-    --editor-surface: #1a1a1a;
-    --editor-gutter: #1f1f1f;
-    --editor-border: #525252;
-    --editor-muted: #737373;
-    --editor-icon: #a3a3a3;
-    --editor-selection: #404040;
-    --editor-activeline: #363636;
-    --editor-link: #93c5fd;
-    --editor-tag: #86efac;
-    --editor-attribute: #c4b5fd;
-    --editor-comment-bg: rgba(255, 255, 255, 0.06);
-}
 
 html,
 body {

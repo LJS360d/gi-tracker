@@ -1,4 +1,5 @@
-import { createEffect, onMount, Show } from "solid-js";
+import { createEffect, onMount, Show, untrack } from "solid-js";
+import AdminSection from "./admin/AdminSection";
 import AdminPointsMap from "./AdminPointsMap";
 import AdminPointsTable from "./AdminPointsTable";
 import AdminPointModal from "./AdminPointModal";
@@ -38,7 +39,10 @@ export default function AdminPoints(props: Props) {
     setTotal(props.initialTotal);
     if (props.initialTrackPath?.length) setTrackPath(props.initialTrackPath);
   }
-  onMount(() => loadTrack());
+  onMount(() => {
+    if (trackPath().length === 0) loadTrack();
+  });
+  let skipPointsOnce = false;
   createEffect(() => {
     page();
     pageSize();
@@ -46,30 +50,25 @@ export default function AdminPoints(props: Props) {
     filterInMap();
     filterHasMedia();
     filterSearch();
+    const hasPoints = untrack(() => pointsList().length > 0);
+    if (hasPoints && !skipPointsOnce) {
+      skipPointsOnce = true;
+      return;
+    }
     loadPoints();
   });
 
   return (
-    <div class="w-full max-w-6xl text-neutral-300">
-      <h2 class="text-xl font-light text-neutral-100 mb-2">Punti</h2>
-      <p class="text-neutral-400 mb-4 text-sm">
-        Tutti i punti del percorso. In mappa: solo quelli dopo il downsample e
-        prima del public_delay. Grigio = non ancora pubblico.
-      </p>
-      {error() && (!showEditModal() || error() === "Sessione scaduta.") && (
-        <p class="mb-4 text-red-400">
-          {error()}
-          {error() === "Sessione scaduta." && (
-            <>
-              {" "}
-              <a href="/admin" class="underline">
-                Accedi di nuovo
-              </a>
-            </>
-          )}
-        </p>
-      )}
-
+    <AdminSection
+      title="Punti"
+      description="Nella mappa viene mostrato il downsaple della traccia. La traccia non ancora pubblica è in grigio."
+      error={
+        error() && (!showEditModal() || error() === "Sessione scaduta.")
+          ? error() ?? null
+          : null
+      }
+      maxWidth="6xl"
+    >
       <div class="mb-6 relative z-0">
         <AdminPointsMap path={trackPath()} class="h-[240px]" />
       </div>
@@ -79,6 +78,6 @@ export default function AdminPoints(props: Props) {
       </Show>
 
       <AdminPointsTable />
-    </div>
+    </AdminSection>
   );
 }

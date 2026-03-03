@@ -90,7 +90,7 @@ export default function BetsPage() {
           id="bets-display-name"
           type="text"
           placeholder="Come vuoi essere chiamato (es. Mario)"
-          class="w-full min-h-[48px] px-4 py-3 text-base rounded-xl bg-neutral-800 border border-neutral-600 text-neutral-100 placeholder-neutral-500 touch-manipulation"
+          class="w-full min-h-[48px] px-4 py-3 text-base bg-neutral-800 border border-neutral-600 text-neutral-100 placeholder-neutral-500 touch-manipulation"
           value={displayName()}
           onInput={(e) => persistName(e.currentTarget.value)}
           maxLength={100}
@@ -134,15 +134,15 @@ function QuestionCard(props: CardProps) {
     setValue("");
   }
 
-  const inputClass = "w-full min-h-[48px] px-4 py-3 text-base rounded-xl bg-neutral-800 border border-neutral-600 text-neutral-100 placeholder-neutral-500 touch-manipulation";
-  const btnClass = "w-full min-h-[48px] px-4 py-3 text-base rounded-xl bg-neutral-700 active:bg-neutral-600 disabled:opacity-50 disabled:pointer-events-none text-neutral-100 touch-manipulation md:hover:bg-neutral-600";
+  const inputClass = "w-full min-h-[48px] px-4 py-3 text-base bg-neutral-800 border border-neutral-600 text-neutral-100 placeholder-neutral-500 touch-manipulation";
+  const btnClass = "w-full min-h-[48px] px-4 py-3 text-base bg-neutral-700 active:bg-neutral-600 disabled:opacity-50 disabled:pointer-events-none text-neutral-100 touch-manipulation md:hover:bg-neutral-600";
 
   return (
-    <article class="rounded-xl border border-neutral-800 bg-[#1a1a1a] overflow-hidden">
+    <article class="border border-neutral-800 bg-[#1a1a1a] overflow-hidden">
       <div class="p-4 md:p-5">
         <h2 class="text-lg font-medium text-neutral-100">{props.question.title}</h2>
 
-        <div class="h-44 md:h-48 mt-3 rounded-lg">
+        <div class="h-44 md:h-48 mt-3">
           <Suspense fallback={<div class="w-full h-full flex items-center justify-center skeleton" />}>
             <BetChart counts={props.counts} class="w-full h-full" />
           </Suspense>

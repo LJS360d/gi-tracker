@@ -92,7 +92,7 @@ export default function AdminPointsMap(props: Props) {
 
   return (
     <div
-      class={`relative w-full min-h-[200px] rounded-xl overflow-hidden border border-neutral-800 ${props.class ?? ""}`.trim()}
+      class={`relative w-full min-h-[200px] overflow-hidden border border-base-300 ${props.class ?? ""}`.trim()}
     >
       <div
         ref={(el) => (container = el)}
@@ -100,7 +100,7 @@ export default function AdminPointsMap(props: Props) {
         aria-hidden="true"
       />
       <Show when={props.path.length === 0}>
-        <div class="absolute inset-0 flex items-center justify-center bg-neutral-900/80 text-neutral-500 text-sm">
+        <div class="absolute inset-0 flex items-center justify-center bg-base-300/80 text-base-content/60 text-sm">
           Nessun punto
         </div>
       </Show>

@@ -34,33 +34,30 @@ export default function AdminPointModal() {
       }
     >
       <div
-        class="bg-neutral-900 border border-neutral-700 md:rounded-xl shadow-xl w-full max-h-[95dvh] md:max-h-[90vh] md:max-w-md overflow-hidden flex flex-col rounded-t-2xl relative"
+        class="bg-base-100 border border-base-300 md:shadow-xl w-full max-h-[95dvh] md:max-h-[90vh] md:max-w-md overflow-hidden flex flex-col rounded-t-2xl relative"
         onClick={(e) => e.stopPropagation()}
       >
         {formSubmitting() && (
           <div
-            class="absolute inset-0 z-10 flex items-center justify-center bg-neutral-900/80 rounded-t-2xl md:rounded-xl"
+            class="absolute inset-0 z-10 flex items-center justify-center bg-base-100/80 rounded-t-2xl md:rounded-xl"
             aria-busy="true"
             aria-live="polite"
           >
             <div class="flex flex-col items-center gap-3">
-              <div
-                class="h-10 w-10 border-2 border-neutral-500 border-t-neutral-100 rounded-full animate-spin"
-                aria-hidden
-              />
-              <span class="text-sm text-neutral-400">Salvataggio in corso…</span>
+              <span class="loading loading-spinner loading-lg text-primary" aria-hidden />
+              <span class="text-sm text-base-content/70">Salvataggio in corso…</span>
             </div>
           </div>
         )}
-        <div class="flex items-center justify-between shrink-0 p-4 border-b border-neutral-700">
-          <h2 id="edit-point-title" class="text-lg text-neutral-100">
+        <div class="flex items-center justify-between shrink-0 p-4 border-b border-base-300">
+          <h2 id="edit-point-title" class="text-lg text-base-content">
             Modifica punto
           </h2>
           <button
             type="button"
             onClick={() => canClose() && closeEditModal()}
             disabled={formSubmitting()}
-            class="min-h-11 min-w-11 flex items-center justify-center rounded-xl text-neutral-400 active:bg-neutral-800 active:text-white touch-manipulation disabled:opacity-50 disabled:pointer-events-none md:hover:bg-neutral-800 md:hover:text-white"
+            class="btn btn-ghost btn-square min-h-11 min-w-11 touch-manipulation disabled:opacity-50 disabled:pointer-events-none"
             aria-label="Annulla"
           >
             <MdiClose class="h-5 w-5" />
@@ -71,80 +68,77 @@ export default function AdminPointModal() {
           class="p-4 overflow-y-auto space-y-4 flex-1"
         >
           {error() && (
-            <div
-              class="flex items-center gap-3 p-3 rounded-xl border border-red-500/60 bg-red-950/30 text-red-200"
-              role="alert"
-            >
+            <div class="alert alert-error rounded-xl" role="alert">
               <span class="text-sm">{error()}</span>
             </div>
           )}
           <div class="grid grid-cols-2 gap-3">
-            <label class="flex flex-col gap-1 text-sm text-neutral-400">
+            <label class="flex flex-col gap-1 text-sm text-base-content/70">
               Latitudine
               <input
                 type="text"
                 inputmode="decimal"
                 value={formLat()}
                 onInput={(e) => setFormLat((e.target as HTMLInputElement).value)}
-                class="min-h-12 px-4 py-3 rounded-xl bg-neutral-800 border border-neutral-600 text-neutral-100 touch-manipulation"
+                class="input input-bordered min-h-12 touch-manipulation"
               />
             </label>
-            <label class="flex flex-col gap-1 text-sm text-neutral-400">
+            <label class="flex flex-col gap-1 text-sm text-base-content/70">
               Longitudine
               <input
                 type="text"
                 inputmode="decimal"
                 value={formLng()}
                 onInput={(e) => setFormLng((e.target as HTMLInputElement).value)}
-                class="min-h-12 px-4 py-3 rounded-xl bg-neutral-800 border border-neutral-600 text-neutral-100 touch-manipulation"
+                class="input input-bordered min-h-12 touch-manipulation"
               />
             </label>
           </div>
-          <label class="flex flex-col gap-1 text-sm text-neutral-400">
+          <label class="flex flex-col gap-1 text-sm text-base-content/70">
             Data e ora
             <input
               type="datetime-local"
               value={formDeviceTs()}
               onInput={(e) =>
                 setFormDeviceTs((e.target as HTMLInputElement).value)}
-              class="min-h-12 px-4 py-3 rounded-xl bg-neutral-800 border border-neutral-600 text-neutral-100 touch-manipulation"
+              class="input input-bordered min-h-12 touch-manipulation"
             />
           </label>
-          <label class="flex flex-col gap-1 text-sm text-neutral-400">
+          <label class="flex flex-col gap-1 text-sm text-base-content/70">
             Tipo di segmento
             <select
               value={formSegmentType()}
               onInput={(e) =>
                 setFormSegmentType((e.target as HTMLSelectElement).value)}
-              class="min-h-12 px-4 py-3 rounded-xl bg-neutral-800 border border-neutral-600 text-neutral-100 touch-manipulation"
+              class="select select-bordered min-h-12 touch-manipulation w-full"
             >
               <option value="ground">Terra</option>
               <option value="plane">Aereo</option>
               <option value="boat">Barca</option>
             </select>
           </label>
-          <label class="flex flex-col gap-1 text-sm text-neutral-400">
+          <label class="flex flex-col gap-1 text-sm text-base-content/70">
             Indirizzo
             <input
               type="text"
               value={formAddress()}
               onInput={(e) =>
                 setFormAddress((e.target as HTMLInputElement).value)}
-              class="min-h-12 px-4 py-3 rounded-xl bg-neutral-800 border border-neutral-600 text-neutral-100 touch-manipulation"
+              class="input input-bordered min-h-12 touch-manipulation"
             />
           </label>
           <div class="flex gap-3 pt-2">
             <button
               type="submit"
               disabled={formSubmitting()}
-              class="flex-1 min-h-12 px-4 py-3 text-base rounded-xl bg-neutral-700 active:bg-neutral-600 text-neutral-100 disabled:opacity-50 touch-manipulation"
+              class="btn btn-primary flex-1 min-h-12 touch-manipulation disabled:opacity-50"
             >
               Salva
             </button>
             <button
               type="button"
               onClick={closeEditModal}
-              class="min-h-12 px-4 py-3 text-base rounded-xl bg-neutral-800 text-neutral-400 active:text-neutral-200 touch-manipulation"
+              class="btn btn-ghost min-h-12 touch-manipulation"
             >
               Annulla
             </button>
