@@ -9,6 +9,9 @@ RUN bun install --frozen-lockfile
 
 COPY . .
 
+ARG BEHIND_PROXY=1
+ENV BEHIND_PROXY=${BEHIND_PROXY}
+
 RUN mkdir -p /app/data
 ENV ASTRO_DATABASE_FILE=/app/data/gi-tracker.db
 RUN bunx astro build
