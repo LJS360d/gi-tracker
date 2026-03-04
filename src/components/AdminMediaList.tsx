@@ -89,7 +89,10 @@ export default function AdminMediaList() {
                     <>
                       <button
                         type="button"
-                        onClick={() => openEdit(row)}
+                        onClick={() => {
+                          const r = mediaList().find((m) => m.id === row.id);
+                          if (r) openEdit(r);
+                        }}
                         class={btnClass}
                       >
                         Modifica

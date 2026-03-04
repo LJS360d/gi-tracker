@@ -28,28 +28,40 @@ type Props = {
 };
 
 export default function AdminMedia(props: Props) {
-  if (
-    props.initialMedia &&
-    props.initialPoints &&
-    mediaList().length === 0 &&
-    points().length === 0
-  ) {
-    hydrateFromInitial(
-      props.initialMedia,
-      props.initialTotal ?? 0,
-      props.initialPoints,
-    );
-  }
+  createEffect(() => {
+    const im = props.initialMedia;
+    const ip = props.initialPoints;
+    if (
+      im &&
+      ip &&
+      mediaList().length === 0 &&
+      points().length === 0
+    ) {
+      hydrateFromInitial(im, props.initialTotal ?? 0, ip);
+    }
+  });
   onMount(() => {
+    const im = props.initialMedia;
+    const ip = props.initialPoints;
+    if (
+      im &&
+      ip &&
+      mediaList().length === 0 &&
+      points().length === 0
+    ) {
+      hydrateFromInitial(im, props.initialTotal ?? 0, ip);
+    }
     if (points().length === 0) loadPoints();
   });
   let skipMediaOnce = false;
   createEffect(() => {
+    const listLen = mediaList().length;
+    const tot = total();
     page();
     pageSize();
     sort();
     order();
-    if (mediaList().length > 0 && total() > 0 && !skipMediaOnce) {
+    if (listLen > 0 && tot > 0 && !skipMediaOnce) {
       skipMediaOnce = true;
       return;
     }
