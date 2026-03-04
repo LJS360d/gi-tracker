@@ -1,0 +1,49 @@
+meta {
+  name: addPoint
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{spongi}}/api/ingest
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "identifier": "61:20:76:13:31:13",
+    "device_parameter": {},
+    "address": "Via Ferdinando Sbrana, Porta a Piagge, Pisa, Tuscany, 56124, Italy",
+    "obd_measurements": {},
+    "timestamp": {
+      "$date": "2026-02-24T11:21:37.000Z"
+    },
+    "status": [
+      "normal"
+    ],
+    "measurements": {
+      "satellites": {
+        "$numberLong": "0"
+      },
+      "altitude": 0,
+      "angle": 0,
+      "gps": {
+        "lat": 43.7125816,
+        "long": 10.4192849
+      }
+    },
+    "raw_address": {
+      "country": "Italy",
+      "country_code": "it",
+      "road": "Via Ferdinando Sbrana",
+      "city": "Pisa",
+      "ISO3166-2-lvl4": "IT-52",
+      "county": "Pisa",
+      "postcode": "56124",
+      "suburb": "Porta a Piagge",
+      "ISO3166-2-lvl6": "IT-PI",
+      "state": "Tuscany"
+    }
+  }
+}
