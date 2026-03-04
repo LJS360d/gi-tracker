@@ -28,18 +28,6 @@ type Props = {
 };
 
 export default function AdminMedia(props: Props) {
-  createEffect(() => {
-    const im = props.initialMedia;
-    const ip = props.initialPoints;
-    if (
-      im &&
-      ip &&
-      mediaList().length === 0 &&
-      points().length === 0
-    ) {
-      hydrateFromInitial(im, props.initialTotal ?? 0, ip);
-    }
-  });
   onMount(() => {
     const im = props.initialMedia;
     const ip = props.initialPoints;
