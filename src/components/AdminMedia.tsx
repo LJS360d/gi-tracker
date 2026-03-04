@@ -53,16 +53,14 @@ export default function AdminMedia(props: Props) {
     }
     if (points().length === 0) loadPoints();
   });
-  let skipMediaOnce = false;
+  let initialSkip = !!(props.initialMedia && props.initialMedia.length > 0);
   createEffect(() => {
-    const listLen = mediaList().length;
-    const tot = total();
     page();
     pageSize();
     sort();
     order();
-    if (listLen > 0 && tot > 0 && !skipMediaOnce) {
-      skipMediaOnce = true;
+    if (initialSkip) {
+      initialSkip = false;
       return;
     }
     loadMedia();
