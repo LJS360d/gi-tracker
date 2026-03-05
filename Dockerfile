@@ -9,9 +9,7 @@ RUN bun install --frozen-lockfile
 
 COPY . .
 
-ARG BEHIND_PROXY=1
-ENV BEHIND_PROXY=${BEHIND_PROXY}
-
+ENV BEHIND_PROXY=1
 RUN mkdir -p /app/data
 ENV ASTRO_DATABASE_FILE=/app/data/gi-tracker.db
 RUN bunx astro build
@@ -33,10 +31,7 @@ COPY --from=build /app/astro.config.mjs ./
 COPY --from=build /app/data/gi-tracker.db /app/data/gi-tracker.seed.db
 COPY docker-entrypoint.sh /app/
 
-# Persistent directories (mount volumes here)
 RUN mkdir -p /app/public/media /app/data && chmod +x /app/docker-entrypoint.sh
-VOLUME /app/public/media
-VOLUME /app/data
 
 ENV HOST=0.0.0.0
 ENV PORT=3000
